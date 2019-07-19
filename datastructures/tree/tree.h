@@ -1,8 +1,8 @@
 
 typedef struct tree {
-        struct tree * left;
-        struct tree * right;
-        int data;
+    struct tree * left;
+    struct tree * right;
+    int data;
 } tree;
 
 tree * tree_new();

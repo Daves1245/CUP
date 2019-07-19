@@ -9,17 +9,17 @@
 **************************/
 
 /* we represent the queue as a linked
- * list with a priority attribute */
+* list with a priority attribute */
 typedef struct pq_node {
-        struct pq_node * prev;
-        struct pq_node * next;
-        int data;
-        int priority;
+    struct pq_node * prev;
+    struct pq_node * next;
+    int data;
+    int priority;
 } pq_node;
 
 typedef struct priority_queue {
-	pq_node ** head; 
-	int size;
+    pq_node ** head; 
+    int size;
 } priority_queue;
 
 // creation and deletion

@@ -1,9 +1,9 @@
 #define STACK_INIT_CAPACITY 4
 
 typedef struct stack {
-        void ** items;
-        int size;
-        int capacity;
+    void ** items;
+    int size;
+    int capacity;
 } stack;
 
 void stack_init(stack *s);

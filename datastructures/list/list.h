@@ -1,7 +1,7 @@
 typedef struct list {
-        list * next;
-        list * previous;
-        int data;
+    list * next;
+    list * previous;
+    int data;
 } node;
 
 // creation and deletion
