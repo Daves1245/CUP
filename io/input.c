@@ -1,6 +1,12 @@
 
 #include "input.h"
 
+/*
+* it turns out the C library has (relatively) recently
+* added a function called getline() that if called with 
+* a null pointer, will do as the methods below are intended
+* to. nonetheless, i provide my own approach below.
+*/
 // grab the next space-separated word from standard input
 const char * input_next() {
     size_t size = MESSAGE_MAX_SIZE;
