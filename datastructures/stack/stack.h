@@ -1,3 +1,5 @@
+#ifndef STACK_H
+#define STACK_H
 #define STACK_INIT_CAPACITY 4
 #define STACK_TYPE void*
 
@@ -29,3 +31,4 @@ int stack_put(stack *s, void * item);
 // Pop the top most element of the stack
 void * stack_pop(stack *s);
 
+#endif

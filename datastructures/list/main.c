@@ -7,3 +7,4 @@ int main(void)
     list_add(head, 2);
     list_add(head, 3);
 }
+

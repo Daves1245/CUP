@@ -2,7 +2,7 @@
 
 list * list_new()
 {
-    list * ret = malloc(sizeof(list));  
+    list * ret = malloc(sizeof(list));
     ret->next = ret->previous = NULL;
     return ret;
 }

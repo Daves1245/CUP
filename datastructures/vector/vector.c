@@ -3,6 +3,19 @@
 
 #include "vector.h"
 
+#define VECTOR_TYPE void*
+
+/********************************************
+*
+* file: vector.c
+* author: David Santamaria (davidsantamaria1245@gmail.com)
+* purpose: provides a dynamically-allocated array that 
+* implements resizing for an unknown amount of elements
+*
+*
+*********************************************/
+
+
 // Return a pointer to a newly allocated vector
 vector * vector_new()
 {
@@ -32,10 +45,6 @@ int vector_empty(vector *v)
 // Resize a vector
 void vector_resize(vector * v, int capacity)
 { 
-    #ifdef DEBUG_ON
-    printf("vector_resize: %d to %d\n", v->capacity, capacity);
-    #endif
-
     void **items = realloc(v->items, sizeof(void *) * capacity);
     if (items) {
         v->items = items;
