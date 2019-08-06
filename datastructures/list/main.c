@@ -52,8 +52,10 @@ void add(struct list_head *list)
 void delete(struct list_head *list)
 {
         if (!list_empty(list)) {
-                int tmp = list_entry(list->next, struct my_struct, list)->num;
+                struct my_struct *sp = list_entry(list->next, struct my_struct, list);
+                int tmp = sp->num;
                 list_del(list->next);
+                free(sp);
                 printf(ANSI_GREEN("Deleted %d from list\n"), tmp);
         } else {
                 printf(ANSI_YELLOW("List is empty, cannot delete an element\n"));
