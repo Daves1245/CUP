@@ -29,11 +29,11 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 // create a stack and return a reference to it
-stack * stack_new()
+stack *stack_new()
 {
         stack * ret = malloc(sizeof(*ret));
         ret->capacity = STACK_INIT_CAPACITY;
-        ret->items = malloc(sizeof(*(ret->items) * ret->capacity));
+        ret->items = malloc(sizeof(*(ret->items)) * ret->capacity);
         if (!ret->items) {
                 fprintf(stderr, "stack: error on initializing items array.\n");
                 printf("ERROR\n");

@@ -11,15 +11,38 @@
         * insert O(logN)
         * delete O(logN)
         * find O(logN)
-*
-* version: 1.0.1
-* changes:
-        * removed dynamic memory allocation (doesn't hold variable length data, no need for heap usage)
-        * added documentation
-        * added TODOs 
-* status: broken (fix insert and remove functions) 
+        *
+        * version: 1.0.2
+        * changes:
+                * added documentation
+                * added TODOs 
+                * added duplicate data by implementing linked list
+                * status: broken (fix insert) 
+                * XXX add remove function
 ************************************************************/
-node * bst_minimum(node * root)
+
+// create a new tree
+node *bst_new(int data)
+{
+        node *ret = malloc(sizeof(*ret));
+        if (!ret) {
+                return NULL;
+        }
+        ret->left = ret->right = NULL;
+        ret->data = data;
+        return ret;
+}
+void bst_delete(node *root)
+{
+        if (root->left) {
+                bst_delete(root->left);
+        }
+        if (root->right) {
+                bst_delete(root->right);
+        }
+        free(root);
+}
+static inline node *bst_minimum(node *root)
 {
         node * c = root;
         while (c && c->left) {
@@ -27,7 +50,7 @@ node * bst_minimum(node * root)
         }
         return c;
 }
-node * bst_maximum(node * root)
+static inline node *bst_maximum(node *root)
 {
         node * c = root;
         while (c && c->right) {
@@ -41,83 +64,68 @@ node * bst_maximum(node * root)
 *
 ****************************************************/
 // insert a new node into the tree
-// XXX fix since bst_new() is deprecated
-void bst_insert(node * root, node * elem)
+void bst_insert(node *root, int data)
 {
-        if (root && root->data == 0) {
-                root->data = elem->data;
-        }
-
-        if (root->data == elem->data) { // XXX allow for redundant elements in 
-                return;                 // the future. The way it works now is that
-        }                               // the tree discards any node with data already
-                                        // present in the tree. This keeps the property that 
-        if (elem->data < root->data) {        // all children have strictly less or greater than data than
-                if (root->left) {       // the root.
-                        bst_insert(root->left, elem->data);
-                        return;
-                }
-
-                left->data = data;
-                root->left = left;
-                return;
-        }
-        if (data > root->data) {
-                if (root->right) {
-                        bst_insert(root->right, data);
-                        return;
-                }
-
-                node * right = bst_new();
-                right->data = data;
-                root->right = right;
-                return;
+        node *elem = bst_new(data);
+        node *iterator = root;
+        while (1) {
+                if (data < iterator->data) {
+                        if (iterator->left) {
+                                iterator = iterator->left;
+                        } else {
+                                iterator->left = elem;
+                                break;
+                        }
+                } else if (data > iterator->data) {
+                        if (iterator->right) {
+                                iterator = iterator->right;
+                        } else {
+                                iterator->right = elem;
+                                break;
+                        }
+                } else {
+                        if (iterator->next) {
+                                while (iterator->next) {
+                                        iterator = iterator->next;
+                                } 
+                        }
+                        iterator->next = elem;
+                        break;
+                } 
         }
 }
-// get a reference to the node within node with given data
-node * bst_find(node * root, int data)
+// Returns the element in the tree with the specified data
+// in the case that there are multiple elements with the same data,
+// this returns the head of a linked list of all such elements.
+node * bst_find(node *root, int data)
 {
-        if (!root) {
-                return NULL;
-        }
-
-        if (data == root->data) {
+        if (root->data == data) {
                 return root;
         }
 
-        // XXX since recursion doesn't necessarily help
-        // here, do this iteratively. This may add a lot
-        // of unnecessary function calling on the stack.
-        if (data < root->data) {
-                return bst_find(root->left, data);
+        node *iterator = root;
+        while (1) {
+                if (data < iterator->data) {
+                        if (iterator->left) {
+                                iterator = iterator->left;
+                        } else {
+                                return NULL;
+                        }
+                } else if  (data > iterator->data) {
+                        if (iterator->right) {
+                                iterator = iterator->right;
+                        } else {
+                                return NULL;
+                        }
+                } else {
+                        break;
+                }
         }
 
-        if (data > root->data) {
-                return bst_find(root->right, data);
-        }
-}
-// remove a node with given data from a node
-static node * bst_rm(node * root, node * parent, int data)
-{
-        // XXX - do this
-}
-node * bst_remove(node * root, int data)
-{
-        if (!root) {
+        if (iterator->data == data) {
+                return iterator;
+        } else {
                 return NULL;
-        }
-
-        if (data == root->data) {
-                node * rplcmnt;
-                if (root->left) {
-                        rplcmnt = bst_maximum(root->left);
-                } else if (root->right) {
-                        rplcmnt = bst_minimum(root->right);
-                }
-
-                if (rplcmnt) {
-                       // XXX - finish this 
-                }
         }
 }
 
@@ -127,7 +135,7 @@ node * bst_remove(node * root, int data)
 *
 *****************************************************/
 /* Perform the function fun on all nodes in a node in specified traversal method */
-void bst_preorder(void (* fun)(node *), node * n)
+void bst_preorder(void (*fun)(node *), node *n)
 {
         if (n) {
                 fun(n);
@@ -139,7 +147,7 @@ void bst_preorder(void (* fun)(node *), node * n)
                 bst_preorder(fun, n->right);
         }
 }
-void bst_inorder(void (* fun)(node * n), node * n)
+void bst_inorder(void (*fun)(node *), node *n)
 {
         if (n->left) {
                 bst_inorder(fun, n->left);
@@ -151,9 +159,10 @@ void bst_inorder(void (* fun)(node * n), node * n)
                 bst_inorder(fun, n->right);
         }
 }
-void bst_postorder(void (* fun)(node * n), node * n) { if (n->left) {
-        bst_postorder(fun, n->left);
-}
+void bst_postorder(void (*fun)(node *), node *n) {
+        if (n->left) {
+                bst_postorder(fun, n->left);
+        }
         if (n->right) {
                 bst_postorder(fun, n->right);
         }
