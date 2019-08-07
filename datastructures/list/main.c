@@ -2,7 +2,14 @@
 #include <stdlib.h>
 
 #include "list.h"
-#include "test.h"
+#include "colors.h" // fun colors!
+
+/*
+* Here is the beauty of linked lists: they are so incredibly versatile.
+* I didn't know exactly by how much until I started reading about the linux kernel.
+* Below is my implementation of stacks and queues using a modified version of the
+* kernel's linked list implementation.
+*/
 
 /*
 * Now this is truly interesting. Instead of making linked lists that contain pointers
@@ -12,55 +19,78 @@
 * list entry given. By this method, we can completely separate the idea of structures
 * and lists.
 */
-struct my_struct {
-        int num;
+struct element {
+        int data;
         struct list_head list;
 };
 
 void welcome()
 {
-        printf(ANSI_GREEN("Welcome to the linked list tester!\n"));
+        printf(ANSI_GREEN("Welcome to the data structures tester!\n" ANSI_RESET));
 }
 
-void print_list(struct list_head *list)
+void _print(struct list_head *list, const char *ds_name)
 {
         if (list_empty(list)) {
-                printf(ANSI_YELLOW("list is empty\n"));
-                printf(ANSI_RESET);
+                printf(ANSI_YELLOW("Empty %s, cannot print!\n" ANSI_RESET), ds_name);
                 return;
         }
         struct list_head *iterator;
         list_for_each(iterator, list) {
-                printf(ANSI_MAGENTA("%d "), list_entry(iterator, struct my_struct, list)->num);
+                printf(ANSI_MAGENTA("%s: %d " ANSI_RESET), ds_name, list_entry(iterator, struct element, list)->data);
         }
-        printf(ANSI_RESET);
         printf("\n");
 }
 
-void add(struct list_head *list)
+void print(struct list_head *list, struct list_head *stack, struct list_head *queue)
 {
-        printf("Enter number to add to list: ");
-        int n;
-        scanf("%d", &n);
-        struct my_struct *elem = malloc(sizeof(struct my_struct));
-        elem->num = n;
-        list_add(&elem->list, list);
-        printf(ANSI_GREEN("Number %d added to list\n"), n);
-        printf(ANSI_RESET);
+        _print(list, "list");
+        _print(stack, "stack");
+        _print(queue, "queue");
 }
 
-void delete(struct list_head *list)
+void linked_list_add(struct list_head *list)
+{
+        struct element *elem = malloc(sizeof(struct element));
+        printf("Enter number to add to list: ");
+        scanf("%d", &elem->data);
+        list_add(&elem->list, list);
+        printf(ANSI_GREEN("Number %d added to list\n" ANSI_RESET), elem->data);
+}
+
+void linked_list_delete(struct list_head *list)
 {
         if (!list_empty(list)) {
-                struct my_struct *sp = list_entry(list->next, struct my_struct, list);
-                int tmp = sp->num;
+                struct element *sp = list_entry(list->next, struct element, list);
+                int tmp = sp->data;
                 list_del(list->next);
                 free(sp);
                 printf(ANSI_GREEN("Deleted %d from list\n"), tmp);
         } else {
-                printf(ANSI_YELLOW("List is empty, cannot delete an element\n"));
-                printf(ANSI_RESET);
+                printf(ANSI_YELLOW("List is empty, cannot delete!\n"));
         }
+                printf(ANSI_RESET);
+}
+
+void stack_push(struct list_head *stack)
+{
+        printf("Enter number to add to stack: ");
+        struct element *elem = malloc(sizeof(struct element));
+        scanf("%d", &elem->data);
+        list_add(&elem->list, stack);
+        printf(ANSI_GREEN("Added %d to stack\n"), elem->data);
+}
+
+void stack_pop(struct list_head *stack)
+{
+        if (list_empty(stack)) {
+                printf(ANSI_YELLOW("Stack empty, cannot pop from it!\n" ANSI_RESET));
+                return;
+        }
+
+        int ret = list_entry(stack->next, struct element, list)->data;
+        list_del(stack->next);
+        printf("Popped %d from the stack\n", ret);
 }
 
 int main(void)
@@ -68,35 +98,40 @@ int main(void)
         welcome();
 
         static LIST_HEAD(list);
+        static LIST_HEAD(stack);
+        static LIST_HEAD(queue);
 
         while (1) {
-                printf(ANSI_CYAN("Available options:\n"));
-                printf(ANSI_RESET);
-                printf("0. Print list\n"
+                printf(ANSI_CYAN("Available options:\n" ANSI_RESET));
+                printf(          "0. Print datastructures\n"
                                  "1. Add to list\n"
                                  "2. Delete from list\n"
-                                 "3. Exit\n");
-                printf(ANSI_RESET);
-
+                                 "3. Push to stack\n"
+                                 "4. Pop from stack\n"
+                                 "5. Exit\n");
                 int c;
                 scanf("%d", &c);
-
                 switch (c) {
                         case 0:
-                                print_list(&list);
+                                print(&list, &stack, &queue);
                                 break;
                         case 1:
-                                add(&list);
+                                linked_list_add(&list);
                                 break;
                         case 2:
-                                delete(&list);
+                                linked_list_delete(&list);
                                 break;
                         case 3:
+                                stack_push(&stack);
+                                break;
+                        case 4:
+                                stack_pop(&stack);
+                                break;
+                        case 5:
                                 goto end;
                         default:
-                                printf(ANSI_RED("Input not recognized.\n"));
-                                printf(ANSI_RESET);
-                                break;
+                        printf(ANSI_RED("Input not recognized. Try again\n" ANSI_RESET));
+                        break;
                 }
         }
 
@@ -107,55 +142,6 @@ int main(void)
         * Nonetheless, it is a neat feature of the C language.
         */
         end:;
-
-        /*
-        static LIST_HEAD(stat_list);
-        static LIST_HEAD(dyn_list);
-
-        // Statically made at compile-time. 
-        struct my_struct s1 = {
-                .num = 1,
-                .list = LIST_HEAD_INIT(s1.list),
-        };
-
-        struct my_struct s2 = {
-                .num = 2,
-                .list = LIST_HEAD_INIT(s2.list),
-        };
-
-        struct my_struct s3 = {
-                .num = 3,
-                .list = LIST_HEAD_INIT(s3.list),
-        };
-
-        list_add_tail(&s1.list, &stat_list);
-        list_add_tail(&s2.list, &stat_list);
-        list_add_tail(&s3.list, &stat_list);
-
-        struct list_head *iterator;
-
-        printf("Compile-time made list: ");
-        list_for_each(iterator, &stat_list) {
-                printf("%d ", list_entry(iterator, struct my_struct, list)->num);
-        }
-
-        printf("\nEnter a number: ");
-        int n;
-        scanf("%d", &n);
-        for (int i = 0; i < n; i++) {
-                struct my_struct *tmp = malloc(sizeof(struct my_struct));
-                scanf("%d", &tmp->num);
-                INIT_LIST_HEAD(&tmp->list);
-                list_add_tail(&tmp->list, &dyn_list);
-        }
-
-        iterator = dyn_list.next; 
-        printf("Dynamically allocated list: ");
-        while (iterator->next != iterator) {
-                printf("%d ", list_entry(iterator, struct my_struct, list)->num);
-                iterator = iterator->next;
-                list_del(iterator->prev);
-        }
-        */
+        printf(ANSI_GREEN("Have a nice day!\n" ANSI_RESET));
         return 0;
 }
