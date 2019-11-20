@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Inspiration from www.codeforces.com/blog/entry/18051
+ */
+
 static inline int parent(int i)
 {
     return i / 2;
@@ -19,52 +23,59 @@ static inline int rchild(int i)
 
 // this should be check if i is within [(n + 1) / 2, n) 
 // but due to indexing being 0 based, it is [n / 2, n - 1)
-static inline int isleaf(int i, int n)
+static inline int isleaf(int i, size_t n)
 {
     return (i >= n / 2) && (i < n); 
 }
 
-static int build(int arr[], int n, int i)
+static int build(int tree[], size_t n, int i)
 {
     if (!isleaf(i, n)) {
-        arr[i] = build(arr, n, lchild(i)) + build(arr, n, rchild(i));
+        tree[i] = build(tree, n, lchild(i)) + build(tree, n, rchild(i));
     }
-    return arr[i];
+    return tree[i];
 }
 
-int *segtree_make(int arr[], int n)
+// XXX - figure out if seg tree should be allocated to the heap or not
+// What is the best way of storing the tree?
+
+/* Build the segtree */
+int *segtree_build(int tree[], size_t n)
 {
-    int *ret = malloc(sizeof(*ret) * (2 * n));
+    int *ret = malloc(sizeof(*ret) * 2 * n);
+    /* A segment tree is composed of 2n elements */
     for (int i = 0; i < n; i++) {
-        ret[i + n - 1] = arr[i];
+        ret[i + n - 1] = tree[i]; // The first n elements correspond to the tree itself
     }
-    ret[0] = build(ret, 2 * n - 1, 0);
+    ret[0] = build(ret, 2 * n - 1, 0); // The next n to the array the tree represents
     return ret;
 }
 
-void segtree_update(int arr[], int i, int key)
+/* Update a value in the tree */
+void segtree_update(int *tree, int i, int value)
 {
-    int diff = key - arr[i];
+    int diff = value - tree[i]; // First we calculate the difference
     while (i > 0) {
-        arr[i] += diff;
-        i = parent(i);
-    }
-    arr[0] += diff;
+        tree[i] += diff;      /* Now we add this difference up along the tree so that */
+        i = parent(i);       /* every necessary node is updated with the difference  */
+    }		              
+    tree[0] += diff;
 }
 
-int segtree_query(int arr[], int i, int l, int r)
+/* Query the sum on the interval [l, r) */
+int segtree_query(int *tree, size_t n, int l, int r)
 {
-    if (i < l || i > r) {
-        return 0;
-    }
-    if (i >= l && i < r) {
-        return arr[parent(i)];
-    }
+	int res = 0;
+	for (l += n, r += n; l < r; l /= 2, r /= 2) {
+		if (l & 1) res += tree[l++];
+		if (r & 1) res += tree[--r];	
+	}
+	return res;
 }
 
 #define LIMIT 5
 
-void print(int arr[], int n)
+void print(int arr[], size_t n)
 {
     for (int i = 0; i < n; i++) {
         printf("%d ", arr[i]);
@@ -72,3 +83,11 @@ void print(int arr[], int n)
     printf("\n");
 }
 
+int main(int argc, char **argv) {
+	int arr[] = { 1, 2, 3, 4, 5};
+	int n = sizeof(arr) / sizeof(arr[0]);
+	int *tree = segtree_build(arr, n);
+	print(tree, 2 * n);
+	free(tree);
+	return 0;
+}

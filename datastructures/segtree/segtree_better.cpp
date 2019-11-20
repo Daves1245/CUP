@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <limits.h>
 
-//const int N = 1e5; // limit for array size
+const int N = 1e5; // limit for array size
 int n; // array size
-int t[INT_MAX1];
+int t[2 * N];
 
 // build the segment tree 
 void build() { 
@@ -33,6 +33,8 @@ int main() {
   scanf("%d", &n);
   for (int i = 0; i < n; ++i) scanf("%d", t + n + i);
   build();
-  printf("%d\n", query(0, 4));
+  for (int i = 0; i < 2 * n; i++) {
+    printf("%d ", t[i]);
+  }
   return 0;
 }
