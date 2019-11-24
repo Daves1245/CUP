@@ -84,8 +84,14 @@ void print(int arr[], size_t n)
 }
 
 int main(int argc, char **argv) {
-	int arr[] = { 1, 2, 3, 4, 5};
-	int n = sizeof(arr) / sizeof(arr[0]);
+	printf("Size of arr: ");
+	int n;
+	scanf("%d", &n);
+	int arr[n];
+	printf("arr: ");
+	for (int i = 0; i < n; i++) {
+		scanf("%d", &arr[i]);	
+	}
 	int *tree = segtree_build(arr, n);
 	print(tree, 2 * n);
 	free(tree);

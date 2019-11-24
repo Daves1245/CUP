@@ -1,0 +1,4 @@
+modify segtree to be non-invasive i.e. do what linux kernel does with linked lists to make it an abstract datastructure
+
+philosophical question of the day:
+at what point is an elegant soclution considered a hack, and vice versa? 

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "stack.h"
+#include "stack.h.1"
 #include <errno.h>
 #include <string.h>
 
