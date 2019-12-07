@@ -36,5 +36,6 @@ int main() {
   for (int i = 0; i < 2 * n; i++) {
     printf("%d ", t[i]);
   }
+  printf("\n");
   return 0;
 }
