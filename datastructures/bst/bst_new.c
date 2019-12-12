@@ -3,6 +3,21 @@
 
 #include "useful.h"
 
+/*
+ * Benefits of the new bst data structure:
+ *  - separated tree structure from data, allowing
+ *    a BST to point to anything, as long as the tree
+ *    is given a proper comparator function to compare
+ *    the elements in the tree.
+ * XXX (will be added)
+ *  - non-invasive structure will allow for static
+ *    construction of BST. aka, you will be able to
+ *    make a tree out of any struct by adding a tree_node
+ *    to it and using the bst function family correctly
+ *    (currently a work in progress)
+ *
+ */
+
 #define container_of(ptr, type, member) ({\
     const typeof( ((type *) 0)->member ) *__mptr = (ptr); \
     (type *)( (char *) __mptr - offsetof(type, member) );})
@@ -135,7 +150,14 @@ void bst_dofunc_postorder(bst *t, void (*func)(struct tree_node *))
   } 
 }
 
+void __delete(struct tree_node *node)
+{
+  free(node->data);
+  free(node);
+}
+
 void bst_delete(bst *tree) {
+  __postorder_traverse(tree, __delete);
 }
 
 void print_data_as_string(struct tree_node *node)
