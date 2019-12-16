@@ -1,5 +1,10 @@
 #include <string.h>
 
+void swap(int *a, int *b)
+{
+  *a ^= b; *b ^= a; *a ^= b;
+}
+
 int max(int a, int b)
 {
  return a > b ? a : b; 

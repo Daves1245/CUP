@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "list.h"
 
 static LIST_HEAD(stack);

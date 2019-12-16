@@ -1,0 +1,74 @@
+1. Making and organizing the code
+
+mkdir src/ /bin/{static,shared}
+
+-move all source files to src
+
+2. Creating object files
+
+-Make the object files for the static library
+
+for every file X in src/; do
+  gcc -c src/${X} -o /bin/static/${basename ${X}}.o
+
+-Make shared library object files
+
+for every file X in src/; do
+  gcc -c -fPIC src/${X} -o bin/shared/${basename ${X}}.o
+
+3. Create static library
+
+-use the archiver (ar) and rename to .a
+
+ar rcs bin/static/${LIB_NAME}.a [object file paths]
+ex:
+ar rcs bin/static/libfunstuff.a bin/static/add.o bin/static/answer.o
+
+4. Link statically
+
+-use gcc -L or -l options to specify a library:
+  -L takes the path of a nonstandard directory
+  -l indicates name of a library (it is assumed the library starts with 'lib' and ends in '.o')
+
+example:
+  gcc bin/main.o -Lbin/static -llibfunstuff -o bin/statically-linked
+
+now the statically linked binary bin/statically-linked can be shared
+without the object files
+
+5. Create shared library
+
+-use gcc's -shared flag and rename to .so instead of .a
+
+gcc -shared [paths to one or more object files] -o bin/shared/${LIB_NAME}.so
+
+remember the compiler must use PIC when compiling these (when creating object files in 'creating object files')
+
+6. Move the shared library to a default location or use LB_LIBRARY_PATH
+
+Either move it to a default location, as below:
+
+sudo mv bin/shared/${LIB_NAME}.so /usr/lib
+sudo chmod 755 /usr/lib/${LIB_NAME}.so
+
+Or use LD_LIBRARY_PATH:
+
+LD_LIBRARY_PATH=$(pwd)/bin/shared bin/use-shared-library
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

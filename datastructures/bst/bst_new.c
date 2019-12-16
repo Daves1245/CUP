@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-#include "useful.h"
+#include <stddef.h>
+#include <string.h>
 
 /*
  * Benefits of the new bst data structure:
@@ -39,11 +39,7 @@ struct tree_node *__get_parent(struct bst *tree, void *data)
   struct tree_node *ret = &tree->tree;
   while (1) { 
     if (tree->compare(ret, data) < 0) {
-      if (ret != ret->lchild) {
-        ret = ret->lchild;
-      } else {
-        return ret;
-      }
+      if (ret != ret->lchild) { ret = ret->lchild; } else { return ret; }
     } else {
       if (ret != ret->rchild) {
         ret = ret->rchild;
@@ -52,7 +48,6 @@ struct tree_node *__get_parent(struct bst *tree, void *data)
       }
     }
   }
-
   return ret;
 }
 
@@ -168,7 +163,7 @@ void print_data_as_string(struct tree_node *node)
 int comparator(void *a, void *b)
 {
   printf("inside comparator\n");
-  return lexicographical_compare((const char *)a, (const char *)b);
+  return strcmp((const char *)a,(const char *)b);
 }
 
 #define MAX_SIZE 100

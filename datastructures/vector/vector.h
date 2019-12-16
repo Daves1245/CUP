@@ -6,9 +6,9 @@
 
 // The vector structure
 typedef struct vector {
-    void ** items;
-    int capacity;
-    int size;
+  void **items;
+  int capacity;
+  int size;
 } vector;
 
 /* Creation/Deletion - Memory management */
@@ -26,7 +26,7 @@ void vector_resize(vector *, int); // dynamically reallocate memory
 /* Modification - Data management */
 void vector_add(vector *, void *);
 void vector_set(vector *, int, void *);
-void * vector_get(vector *, int);
-void vector_remove(vector *, int);
+void *vector_get(vector *, int);
+void vector_rm(vector *, int);
 
 #endif
