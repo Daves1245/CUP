@@ -4,8 +4,6 @@
 #include "list.h"
 #include "colors.h" // fun colors!
 
-#include "bignumio.h"
-
 /*
  * Here is the beauty of linked lists: they are so incredibly versatile.
  * I didn't know exactly by how much until I started reading about the linux kernel.
