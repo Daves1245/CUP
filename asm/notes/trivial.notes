@@ -1,2 +1,0 @@
-There's nothing interesting here. The return value of main is
-moved to the eax register and the program terminates. 
