@@ -5,20 +5,8 @@
 
 #define VECTOR_TYPE void*
 
-/********************************************
- *
- * file: vector.c
- * author: David Santamaria (davidsantamaria1245@gmail.com)
- * purpose: provides a dynamically-allocated array that 
- * implements resizing for an unknown amount of elements
- *
- *
- *********************************************/
-
-
 // Return a pointer to a newly allocated vector
-vector * vector_new()
-{
+vector *vector_new() {
   vector * v = malloc(sizeof(vector));
   v->capacity = VECTOR_INIT_CAPACITY;
   v->size = 0;
@@ -33,18 +21,15 @@ void vector_delete(vector *v) {
 }
 
 // Size of a vector
-int vector_size(vector *v)
-{
+int vector_size(vector *v) {
   return v->size;
 }
-int vector_empty(vector *v)
-{
+int vector_empty(vector *v) {
   return v->size == 0;
 }
 
 // Resize a vector
-void vector_resize(vector * v, int capacity)
-{ 
+void vector_resize(vector * v, int capacity) { 
   void **items = realloc(v->items, sizeof(void *) * capacity);
   if (items) {
     v->items = items;
@@ -53,31 +38,27 @@ void vector_resize(vector * v, int capacity)
 }
 
 // Add an element to a vector
-void vector_add(vector * v, void * elem)
-{
+void vector_add(vector * v, void * elem) {
   if (v->capacity == v->size)
     vector_resize(v, v->capacity * 2);
   v->items[v->size++] = elem;
 }
 
 // Set an element in the vector 
-void vector_set(vector * v, int index, void * item)
-{
+void vector_set(vector * v, int index, void * item) {
   if (index >= 0 && index < v->size)
     v->items[index] = item;
 }
 
 // Get the element from a vector at a certain index
-void * vector_get(vector * v, int index)
-{
+void * vector_get(vector * v, int index) {
   if (index >= 0 && index < v->size)
     return v->items[index];
   return NULL;
 }
 
 // Remove an element from a vector
-void vector_rm(vector * v, int index)
-{
+void vector_rm(vector * v, int index) {
   if (index < 0 || index >= v->size) {
     return; // we're not in a valid range
   }

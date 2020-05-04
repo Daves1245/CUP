@@ -6,30 +6,25 @@
  * Inspiration from www.codeforces.com/blog/entry/18051
  */
 
-static inline int parent(int i)
-{
+static inline int parent(int i) {
   return i / 2;
 }
 
-static inline int lchild(int i)
-{
+static inline int lchild(int i) {
   return 2 * i + 1;
 }
 
-static inline int rchild(int i)
-{
+static inline int rchild(int i) {
   return 2 * i + 2;
 }
 
 // this should be check if i is within [(n + 1) / 2, n) 
 // but due to indexing being 0 based, it is [n / 2, n - 1)
-static inline int isleaf(int i, size_t n)
-{
+static inline int isleaf(int i, size_t n) {
   return (i >= n / 2) && (i < n); 
 }
 
-static int build(int tree[], size_t n, int i)
-{
+static int build(int tree[], size_t n, int i) {
   if (!isleaf(i, n)) {
     tree[i] = build(tree, n, lchild(i)) + build(tree, n, rchild(i));
   }
@@ -40,8 +35,7 @@ static int build(int tree[], size_t n, int i)
 // What is the best way of storing the tree?
 
 /* Build the segtree */
-int *segtree_build(int tree[], size_t n)
-{
+int *segtree_build(int tree[], size_t n) {
   int *ret = malloc(sizeof(*ret) * 2 * n);
   /* A segment tree is composed of 2n elements */
   for (int i = 0; i < n; i++) {
@@ -52,8 +46,7 @@ int *segtree_build(int tree[], size_t n)
 }
 
 /* Update a value in the tree */
-void segtree_update(int *tree, int i, int value)
-{
+void segtree_update(int *tree, int i, int value) {
   int diff = value - tree[i]; // First we calculate the difference
   while (i > 0) {
     tree[i] += diff;      /* Now we add this difference up along the tree so that */
@@ -63,8 +56,7 @@ void segtree_update(int *tree, int i, int value)
 }
 
 /* Query the sum on the interval [l, r) */
-int segtree_query(int *tree, size_t n, int l, int r)
-{
+int segtree_query(int *tree, size_t n, int l, int r) {
   int res = 0;
   for (l += n, r += n; l < r; l /= 2, r /= 2) {
     if (l & 1) res += tree[l++];
@@ -75,8 +67,7 @@ int segtree_query(int *tree, size_t n, int l, int r)
 
 #define LIMIT 5
 
-void print(int arr[], size_t n)
-{
+void print(int arr[], size_t n) {
   for (int i = 0; i < n; i++) {
     printf("%d ", arr[i]);
   }

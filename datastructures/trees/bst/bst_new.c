@@ -34,8 +34,7 @@ typedef struct bst {
   int (*compare) (void*, void*);
 } bst;
 
-struct tree_node *__get_parent(struct bst *tree, void *data)
-{
+struct tree_node *__get_parent(struct bst *tree, void *data) {
   struct tree_node *ret = &tree->tree;
   while (1) { 
     if (tree->compare(ret, data) < 0) {
@@ -51,21 +50,18 @@ struct tree_node *__get_parent(struct bst *tree, void *data)
   return ret;
 }
 
-int compare(struct tree_node *a, struct tree_node *b)
-{
+int compare(struct tree_node *a, struct tree_node *b) {
   return *((int *) b->data) - *((int *) a->data);
 }
 
-static struct tree_node *__make_tree_node(void *data)
-{
+static struct tree_node *__make_tree_node(void *data) {
   struct tree_node *ret = malloc(sizeof(*ret));
   ret->parent = ret->lchild = ret->rchild = ret;
   ret->data = data;
   return ret;
 }
 
-void bst_insert(struct bst *root, void *data)
-{
+void bst_insert(struct bst *root, void *data) {
   if ((struct tree_node *) root->tree.data == &root->tree) {
     root->tree.data = data;
     return;
@@ -100,53 +96,46 @@ bst *bst_new(int (*comparator)(void*, void*)) {
  * XXX give function pointers ability to access memory outside of tree and function itself
  * XXX give function pointers arbitrary number of parameters
  */
-static void __inorder_traverse(struct tree_node *cur, void (*func)(struct tree_node *node))
-{
+static void __inorder_traverse(struct tree_node *cur, void (*func)(struct tree_node *node)) {
   if (!cur) { return; }
   if (cur != cur->lchild) { __inorder_traverse(cur->lchild, func); }
   func(cur);
   if (cur != cur->rchild) { __inorder_traverse(cur->rchild, func); }
 }
 
-static void __preorder_traverse(struct tree_node *cur, void (*func)(struct tree_node *node))
-{
+static void __preorder_traverse(struct tree_node *cur, void (*func)(struct tree_node *node)) {
   if (!cur) { return; }
   func(cur);
   if (cur != cur->lchild) { __preorder_traverse(cur->lchild, func); }
   if (cur != cur->rchild) { __preorder_traverse(cur->rchild, func); }
 }
 
-static void __postorder_traverse(struct tree_node *cur, void (*func)(struct tree_node *node))
-{
+static void __postorder_traverse(struct tree_node *cur, void (*func)(struct tree_node *node)) {
   if (!cur) { return; }
   if (cur != cur->lchild) { __postorder_traverse(cur, func); }
   if (cur != cur->rchild) { __postorder_traverse(cur, func); }
   func(cur);
 }
 
-void bst_dofunc_inorder(bst *t, void (*func)(struct tree_node *))
-{
+void bst_dofunc_inorder(bst *t, void (*func)(struct tree_node *)) {
   if (&t->tree) {
     __inorder_traverse(&t->tree, func);
   }
 }
 
-void bst_dofunc_preorder(bst *t, void (*func)(struct tree_node *))
-{
+void bst_dofunc_preorder(bst *t, void (*func)(struct tree_node *)) {
   if (&t->tree) {
     __preorder_traverse(&t->tree, func);
   }
 }
 
-void bst_dofunc_postorder(bst *t, void (*func)(struct tree_node *))
-{
+void bst_dofunc_postorder(bst *t, void (*func)(struct tree_node *)) {
   if (&t->tree) {
     __postorder_traverse(&t->tree, func);
   } 
 }
 
-void __delete(struct tree_node *node)
-{
+void __delete(struct tree_node *node) {
   free(node->data);
   free(node);
 }
@@ -155,20 +144,17 @@ void bst_delete(bst *tree) {
   __postorder_traverse(tree, __delete);
 }
 
-void print_data_as_string(struct tree_node *node)
-{
+void print_data_as_string(struct tree_node *node) {
   printf("poiner: %p data: %s\n", node->data, (const char *)node->data);
 }
 
-int comparator(void *a, void *b)
-{
+int comparator(void *a, void *b) {
   printf("inside comparator\n");
   return strcmp((const char *)a,(const char *)b);
 }
 
 #define MAX_SIZE 100
-int main(void)
-{
+int main(void) {
   bst *tree = bst_new(comparator);
   char words[MAX_SIZE][MAX_SIZE];
   for (int i = 0; i < MAX_SIZE; i++) {

@@ -24,13 +24,11 @@ struct element {
   struct list_head list;
 };
 
-void welcome()
-{
+void welcome() {
   printf(ANSI_GREEN("Welcome to the data structures tester!\n" ANSI_RESET));
 }
 
-void _print(struct list_head *list, const char *ds_name)
-{
+void _print(struct list_head *list, const char *ds_name) {
   if (list_empty(list)) {
     printf(ANSI_YELLOW("Empty %s, cannot print!\n" ANSI_RESET), ds_name);
     return;
@@ -42,15 +40,13 @@ void _print(struct list_head *list, const char *ds_name)
   printf("\n");
 }
 
-void print(struct list_head *list, struct list_head *stack, struct list_head *queue)
-{
+void print(struct list_head *list, struct list_head *stack, struct list_head *queue) {
   _print(list, "list");
   _print(stack, "stack");
   _print(queue, "queue");
 }
 
-void linked_list_add(struct list_head *list)
-{
+void linked_list_add(struct list_head *list) {
   struct element *elem = malloc(sizeof(struct element));
   printf("Enter number to add to list: ");
   scanf("%d", &elem->data);
@@ -58,8 +54,7 @@ void linked_list_add(struct list_head *list)
   printf(ANSI_GREEN("Number %d added to list\n" ANSI_RESET), elem->data);
 }
 
-void linked_list_delete(struct list_head *list)
-{
+void linked_list_delete(struct list_head *list) {
   if (!list_empty(list)) {
     struct element *sp = list_entry(list->next, struct element, list);
     int tmp = sp->data;
@@ -72,8 +67,7 @@ void linked_list_delete(struct list_head *list)
   printf(ANSI_RESET);
 }
 
-void stack_push(struct list_head *stack)
-{
+void stack_push(struct list_head *stack) {
   printf("Enter number to add to stack: ");
   struct element *elem = malloc(sizeof(struct element));
   scanf("%d", &elem->data);
@@ -81,8 +75,7 @@ void stack_push(struct list_head *stack)
   printf(ANSI_GREEN("Added %d to stack\n"), elem->data);
 }
 
-void stack_pop(struct list_head *stack)
-{
+void stack_pop(struct list_head *stack) {
   if (list_empty(stack)) {
     printf(ANSI_YELLOW("Stack empty, cannot pop from it!\n" ANSI_RESET));
     return;
@@ -93,8 +86,7 @@ void stack_pop(struct list_head *stack)
   printf("Popped %d from the stack\n", ret);
 }
 
-int main(void)
-{
+int main(void) {
   welcome();
 
   static LIST_HEAD(list);
@@ -135,12 +127,6 @@ int main(void)
     }
   }
 
-  /*
-   * Honestly, I don't know how to properly use these goto constructs,
-   * when these are used, if at all in today's program-writing methodology,
-   * and if this leads to any unforseen consequences in the flow of logic.
-   * Nonetheless, it is a neat feature of the C language.
-   */
 end:;
     printf(ANSI_GREEN("Have a nice day!\n" ANSI_RESET));
     return 0;

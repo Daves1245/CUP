@@ -1,7 +1,4 @@
-#include <stdio.h>
-
-int min_index(int arr[], int low, int high)
-{
+int min_index(int arr[], int low, int high) {
     int ret = low, val = arr[ret], i;
     for (i = low; i < high; i++) {
         if (arr[i] < val) {

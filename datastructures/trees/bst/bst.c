@@ -22,8 +22,7 @@
 ************************************************************/
 
 // create a new tree
-node *bst_new(int data)
-{
+node *bst_new(int data) {
   node *ret = malloc(sizeof(*ret));
   if (!ret) {
     return NULL;
@@ -32,8 +31,8 @@ node *bst_new(int data)
   ret->data = data;
   return ret;
 }
-void bst_delete(node *root)
-{
+
+void bst_delete(node *root) {
   if (root->left) {
     bst_delete(root->left);
   }
@@ -42,16 +41,16 @@ void bst_delete(node *root)
   }
   free(root);
 }
-static inline node *bst_minimum(node *root)
-{
+
+static inline node *bst_minimum(node *root) {
   node * c = root;
   while (c && c->left) {
     c = c->left;
   }
   return c;
 }
-static inline node *bst_maximum(node *root)
-{
+
+static inline node *bst_maximum(node *root) {
   node * c = root;
   while (c && c->right) {
     c = c->right;
@@ -64,8 +63,7 @@ static inline node *bst_maximum(node *root)
  *
  ****************************************************/
 // insert a new node into the tree
-void bst_insert(node *root, int data)
-{
+void bst_insert(node *root, int data) {
   node *elem = bst_new(data);
   node *iterator = root;
   while (1) {
@@ -94,11 +92,11 @@ void bst_insert(node *root, int data)
     } 
   }
 }
+
 // Returns the element in the tree with the specified data
 // in the case that there are multiple elements with the same data,
 // this returns the head of a linked list of all such elements.
-node * bst_find(node *root, int data)
-{
+node * bst_find(node *root, int data) {
   if (root->data == data) {
     return root;
   }
@@ -135,8 +133,7 @@ node * bst_find(node *root, int data)
  *
  *****************************************************/
 /* Perform the function fun on all nodes in a node in specified traversal method */
-void bst_preorder(void (*fun)(node *), node *n)
-{
+void bst_preorder(void (*fun)(node *), node *n) {
   if (n) {
     fun(n);
   }
@@ -147,8 +144,8 @@ void bst_preorder(void (*fun)(node *), node *n)
     bst_preorder(fun, n->right);
   }
 }
-void bst_inorder(void (*fun)(node *), node *n)
-{
+
+void bst_inorder(void (*fun)(node *), node *n) {
   if (n->left) {
     bst_inorder(fun, n->left);
   }
@@ -159,6 +156,7 @@ void bst_inorder(void (*fun)(node *), node *n)
     bst_inorder(fun, n->right);
   }
 }
+
 void bst_postorder(void (*fun)(node *), node *n) {
   if (n->left) {
     bst_postorder(fun, n->left);

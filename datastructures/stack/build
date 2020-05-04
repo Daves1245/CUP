@@ -1,2 +1,0 @@
-#!/bin/bash
-gcc -Wall main.c stack.c stack.h -o main

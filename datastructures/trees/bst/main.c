@@ -3,8 +3,7 @@
 
 #include "bst.h"
 
-static void print_tree(node *n)
-{
+static void print_tree(node *n) {
   printf("%d ", n->data);
   if (n->next) {
     node *iterator = n->next;
@@ -17,8 +16,7 @@ static void print_tree(node *n)
 
 #define LIMIT 10
 
-int main(void)
-{
+int main(void) {
   node *root = bst_new(LIMIT / 2);
 
   for (int i = 0; i < LIMIT; i++) {

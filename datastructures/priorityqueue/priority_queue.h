@@ -1,12 +1,5 @@
-/**************************
-*
-* priority queue header - 
-* a representation of the
-* data structure in C
-*
-* author: David Santamaria
-*
-**************************/
+#ifndef CUP_PRIORITY_QUEUE_H
+#define CUP_PRIORITY_QUEUE_H
 
 /* we represent the queue as a linked
 * list with a priority attribute */
@@ -33,3 +26,5 @@ int pq_pop(priority_queue * queue);
 int pq_peek(priority_queue * queue);
 int pq_empty(priority_queue * queue);
 int pq_size(priority_queue * queue);
+
+#endif

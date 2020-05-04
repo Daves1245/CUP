@@ -1,22 +1,20 @@
 #include <string.h>
 
-void swap(int *a, int *b)
-{
-  *a ^= b; *b ^= a; *a ^= b;
+void swap(int *a, int *b) {
+  *a ^= b;
+  *b ^= a;
+  *a ^= b;
 }
 
-int max(int a, int b)
-{
+int max(int a, int b) {
  return a > b ? a : b; 
 }
 
-int min(int a, int b)
-{
+int min(int a, int b) {
   return a < b ? a : b;
 }
 
-int abs(int a)
-{
+int abs(int a) {
   return a > 0 ? a : -a;
 }
 
@@ -58,8 +56,7 @@ int abs(int a)
  * string arguments a, b from the method. This may save some time in practice,
  * but means the algorithm is O(n).
  */
-int lexicographical_compare(const char *a, const char *b)
-{
+int lexicographical_compare(const char *a, const char *b) {
   int diff, min_len = abs(diff = strlen(a) - strlen(b));
   for (int i = 0; i < min_len; ++i) {
     if (a[i] != b[i]) {

@@ -5,8 +5,7 @@
 
 #define LIMIT 100
 
-int main(void)
-{
+int main(void) {
     for (int i = 0; i < LIMIT; i++) {
         int arr[i];
         for (int j = 0; j < i; j++) {
