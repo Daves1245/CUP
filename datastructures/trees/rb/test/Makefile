@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-g -g3
+FLAGS=-g -g3 -O0
 SOURCES=rb_withoutcontainers.c
 
 CFG=release

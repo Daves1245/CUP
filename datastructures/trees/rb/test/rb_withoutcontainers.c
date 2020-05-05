@@ -63,6 +63,13 @@ int bt_ins(struct rb *root, struct rb *node) {
     }
 }
 
+static inline struct rb *getrt(struct rb *node) {
+    while (node->parent != &nil) {
+        node = node->parent;
+    }
+    return node;
+}
+
 /* Case 1 - the inserted node is the root */
 /* Fix - recolor to black */
 static inline int rb_fix_case1(struct rb *root, struct rb *node) {
@@ -122,6 +129,7 @@ static int rb_fix(struct rb *root, struct rb *node) {
     /* There are four cases */
     if (node->parent == &nil) {
         rb_fix_case1(root, node);
+        return 0;
     } else if (node->parent->color == 0) {
         rb_fix_case2(root, node);
     } else {
@@ -150,6 +158,9 @@ static int rb_fix(struct rb *root, struct rb *node) {
 }
 
 int do_inorder(struct rb *root, void (*func)(struct rb *)) {
+    if (!root) {
+        return 0;
+    }
 #ifdef DEBUG
     printf("a\n");
 #endif
@@ -178,17 +189,19 @@ int do_inorder(struct rb *root, void (*func)(struct rb *)) {
 }
 
 int rb_ins(struct rb *root, struct rb *node) {
+    node->color = 1; /* Set the inserted node's color to red */
     bt_ins(root, node);
     rb_fix(root, node);
 }
 
 void printdata(struct rb *n) {
-    printf("p: %p ", n);
+    //printf("p: %p ", n);
     printf("%d ", n->key);
 }
 
 int main(int argc, char **argv) {
     struct rb *root = malloc(sizeof(struct rb));
+    root->parent = root->left = root->right = &nil;
     if (!root) {
         fprintf(stderr, "malloc error!\n");
         exit(EXIT_FAILURE);
@@ -212,12 +225,37 @@ int main(int argc, char **argv) {
 
     do_inorder(root, printdata);
     puts("");
-    /*printf("%d ", root->left->left->key);
-    printf("%d ", root->left->key);
-    printf("%d ", root->key);
-    printf("%d ", root->right->left->key);
-    printf("%d ", root->right->key); */
-    puts("");
 
     return 0;
 }
+
+/*
+int main(int argc, char **argv) {
+    struct rb *root, *r1, *r2;
+    root = malloc(sizeof(struct rb));
+    r1 = malloc(sizeof(struct rb));
+    r2 = malloc(sizeof(struct rb));
+    if (!root || !r1 || !r2) {
+        fprintf(stderr, "a pointer returned malloc NULL\n");
+        exit(EXIT_FAILURE);
+    }
+
+    root->key = 1;
+    r1->key = 2;
+    r2->key = 3;
+
+    root->parent = NULL;
+    root->left = NULL;
+    root->right = r1;
+    r1->parent = root;
+    r1->left = NULL;
+    r1->right = r2;
+    r2->parent = r1;
+    r2->left = NULL;
+    r2->right = NULL;
+
+    left_rotate((struct tree *) root);
+    do_inorder(root->parent, printdata);
+    return 0;
+}
+*/

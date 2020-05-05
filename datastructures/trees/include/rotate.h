@@ -12,6 +12,7 @@ void left_rotate(struct tree *n) {
     n->right = m->left;
     m->parent = n->parent;
     if (n->parent) {
+        m->parent = n->parent;
         if (n == n->parent->left) {
             n->parent->left = m;
         } else if (n == n->parent->right) {
@@ -31,8 +32,8 @@ void left_rotate(struct tree *n) {
 void right_rotate(struct tree *n) {
     struct tree *m = n->left;
     n->left = m->right;
-    m->parent = n->parent;
     if (n->parent) {
+        m->parent = n->parent;
         if (n == n->parent->left) {
             n->parent->left = m;
         } else if (n == n->parent->right) {

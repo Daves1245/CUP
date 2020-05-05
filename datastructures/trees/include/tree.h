@@ -3,6 +3,7 @@
 
 #include "node.h"
 #include "rotate.h"
+#include "traversals.h"
 #include "macros.h"
 
 #endif

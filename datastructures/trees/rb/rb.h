@@ -1,9 +1,27 @@
 #include "../include/tree.h"
 
-#define RB_INIT(root) { {&(root), &(root), &(root)}, BLACK }
+#define RB_INIT(root) { { (struct tree *) &(root), (struct tree *) &(root), (struct tree *) &(root)}, BLACK }
 
+enum RB_COLOR {
+    RED, BLACK
+};
+
+struct rbtree {
+    struct tree node;
+    enum RB_COLOR color;
+};
+
+// icu
 static inline struct rbtree *rb(struct tree *t) {
     return (struct rbtree *) t;
+}
+
+struct rbtree *rb_get_root(struct rbtree *node, void *(*container_of(struct rbtree *))) {
+    struct tree *i = &node->node;
+    while (i->parent) {
+        i = i->parent; 
+    }
+    return (struct rbtree *) i;
 }
 
 /* 
@@ -17,58 +35,85 @@ static inline struct rbtree *rb(struct tree *t) {
  * and bring together all the code into one, beautiful, elegant program
  */
 static int rb_fix(struct rbtree *root, struct rbtree *leaf) {
-    struct rbtree *pivot;
-    while (rb(leaf->node.parent)->color == RED) {
-        if (leaf->node.parent == leaf->node.parent->parent->left) {
-           pivot = rb(leaf->node.parent->parent->right); 
-           if (pivot->color == RED) {
-               rb(leaf->node.parent)->color = BLACK; 
-               leaf->color = BLACK;
-               rb(leaf->node.parent->parent)->color = RED;
-           } else if (leaf == rb(leaf->node.parent->right)) {
-               leaf = rb(leaf->node.parent);
-               left_rotate((struct tree *) root, (struct tree *) leaf);
-               rb(leaf->node.parent)->color = BLACK;
-               rb(leaf->node.parent->parent)->color = RED;
-               right_rotate((struct tree *) root, (struct tree *) leaf);
-           }
-        } else {
-            leaf = rb(leaf->node.parent);
-            /* XXX */
-        }
+    /* 4 cases:
+     * leaf is root (recolor)
+     * leaf's parent is black (do nothing)
+     * leaf's parent is red, uncle is black (recolor)
+     * leaf's parent is red, uncle is red (rotate and recolor)
+     */
+    if (!leaf->node.parent) {
+        leaf->color = BLACK;
+        return 0;
     }
-    root->color = BLACK;
-}
-
-int rb_ins(struct rbtree *root, struct rbtree *leaf, void *(*container_of)(struct rbtree *), int (*comp)(void *, void *)) {
-    struct rbtree *cur, *child;
-    while (1) {
-        if (comp(container_of(leaf), container_of(child)) <= 0) {
-            if (child->.node->left) {
-                cur = child;
-                child = child->left;
-            } else {
-                break;
-            }
-        } else {
-            if (child->right) {
-                cur = child;
-                child = child->right;
-            } else {
-                break;
-            }
-        }
+    if (rb(leaf->node.parent)->color == BLACK) {
+       return 0; 
     }
 
-    leaf->parent = cur;
-    /* We don't accept subtrees atm XXX */
-    leaf->node.right = leaf->node.left = leaf;
-    if (comp(container_of(leaf), container_of(cur)) <= 0) {
-        cur->left = child;
+    int on_right;
+    if (leaf->node.parent->parent->right == leaf->node.parent) {
+        on_right = 1;
     } else {
-        cur->right = child;
+        on_right = 0;
     }
-    leaf->color = RB_RED;
-    rb_fix(root, leaf);
+
+    if (on_right) {
+        if (rb(leaf->node.parent->parent->left)->color == BLACK) {
+            left_rotate((struct tree *) leaf->node.parent->parent);
+            leaf->color = rb(leaf->node.parent->left)->color = BLACK;
+            rb(leaf->node.parent)->color = rb(leaf->node.parent->left->left)->color = RED;
+        } else {
+            rb(leaf->node.parent)->color = rb(leaf->node.parent->parent->left)->color = BLACK;
+            leaf->color = rb(leaf->node.parent->parent)->color = RED;
+        }
+    } else {
+        if (rb(leaf->node.parent->parent->left)->color == BLACK) {
+            right_rotate((struct tree *) leaf->node.parent->parent);
+            leaf->color = rb(leaf->node.parent->right)->color = RED;
+        } else {
+            rb(leaf->node.parent)->color = rb(leaf->node.parent->parent->right)->color = BLACK;  
+            leaf->color = rb(leaf->node.parent->parent)->color = RED;
+        }
+    }
+    return rb_fix(root, (struct rbtree *) leaf->node.parent);
 }
 
+/*
+ * XXX benchmark the difference between
+ * inserting at a random node in an RB Tree (what this will become
+ * if the root isn't properly updated in user space) vs updating user's root
+ * and inserting from there. 
+ * XXX! if updating user space root, how to achieve? functions that return new root
+ * of tree, or double pointer that updates pointer to root?
+ */
+int rb_ins(struct rbtree *root, struct rbtree *leaf, void *(*container_of)(struct rbtree *), int (*comp)(void *, void *)) {
+    leaf->color = RED;
+
+    struct tree *i = &root->node;
+    while (1) {
+        if (comp(container_of((struct rbtree *) i), container_of(root)) < 0) {
+            if (i->left) {
+                i = i->left;
+            } else {
+                break;
+            }
+        } else {
+            if (i->right) {
+                i = i->right;
+            } else {
+                break;
+            }
+        }
+    }
+    
+    leaf->node.parent = i;
+    /* Only ignored on ins(NULL, n) i.e. n defines new root to tree */
+    if (i) { // cast to silent compiler
+        if (comp(container_of((struct rbtree *) i), container_of(leaf)) < 0) {
+            i->left = &leaf->node;
+        } else {
+            i->right = &leaf->node;
+        }
+    }
+
+    return rb_fix(root, leaf);
+}

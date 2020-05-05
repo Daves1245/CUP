@@ -14,8 +14,10 @@ int do_preorder(struct tree *root, void (*func)(void *)) {
         do_preorder(root->left, func);
     }
     if (root->right != root) {
-        do_preorder(root->right, fun);
+        do_preorder(root->right, func);
     }
+
+    return 0;
 }
 
 int do_inorder(struct tree *root, void (*func)(void *)) {
@@ -26,6 +28,8 @@ int do_inorder(struct tree *root, void (*func)(void *)) {
     if (root->right != root) {
         do_inorder(root->right, func);
     }
+
+    return 0;
 }
 
 int do_postorder(struct tree *root, void (*func)(void *)) {
@@ -36,6 +40,8 @@ int do_postorder(struct tree *root, void (*func)(void *)) {
         do_postorder(root->right, func);
     }
     func(root);
+
+    return 0;
 }
 
 #endif
