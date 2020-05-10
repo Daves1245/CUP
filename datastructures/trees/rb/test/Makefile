@@ -1,6 +1,6 @@
 CC=gcc
 FLAGS=-g -g3 -O0
-SOURCES=rb_withoutcontainers.c
+SOURCES=rb_explicit.c
 
 CFG=release
 ifneq ($(CFG), release)
@@ -17,7 +17,7 @@ endif
 .PHONY: all clean
 
 all:
-	$(CC) $(FLAGS) $(SOURCES) -o a
+	$(CC) $(FLAGS) $(SOURCES) -o run
 
 clean:
 	rm a

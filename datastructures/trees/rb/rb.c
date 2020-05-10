@@ -19,8 +19,8 @@ int comp(void *a, void *b) {
     return ((struct myintrbtree *) a)->data - ((struct myintrbtree *) b)->data;
 }
 
-void printdata(void *elem) {
-    printf("%d ", ((struct myintrbtree *) container_of((struct tree *) elem))->data);
+void printdata(struct tree * elem) {
+    printf("%d ", ((struct myintrbtree *) container_of((struct rbtree *)elem))->data);
 }
 
 int main(int argc, char **argv) {
@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
     }
     
     struct myintrbtree *root = malloc(sizeof(struct myintrbtree));
+    RB_INIT_ROOT(root->rbt);
 
     if (!root) {
         fprintf(stderr, "malloc error\n");
@@ -37,7 +38,7 @@ int main(int argc, char **argv) {
     }
 
     scanf("%d ", &root->data);
-    for (int i = 0; i < atoi(argv[1]); i++) {
+    for (int i = 1; i < atoi(argv[1]); i++) {
         struct myintrbtree *tmp = malloc(sizeof(struct myintrbtree));
         if (!tmp) {
             fprintf(stderr, "malloc error\n");
@@ -50,6 +51,9 @@ int main(int argc, char **argv) {
          * or just give it a pointer to the struct rbtree member
          * within your struct of choice */
         rb_ins((struct rbtree *) root, (struct rbtree *) tmp, container_of, comp);
+        printf("Inorder Traversal: ");
+        do_inorder((struct tree *) rb_get_root(&root->rbt, container_of), printdata);
+        puts("");
     }
 
     /* By the current implementation, the root node may have been
@@ -57,8 +61,5 @@ int main(int argc, char **argv) {
      * there is simply a get_root function that returns the root
      * of the tree of a given node. Currently working on updating
      * root as it is moved around. */
-    struct myintrbtree *newroot = (struct myintrbtree *) rb_get_root(root, container_of);
-    do_inorder((struct tree *) root, printdata);
-
     return 0;
 }

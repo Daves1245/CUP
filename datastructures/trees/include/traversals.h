@@ -8,35 +8,45 @@
  * functions :)
  */
 
-int do_preorder(struct tree *root, void (*func)(void *)) {
+int do_preorder(struct tree *root, void (*func)(struct tree *)) {
+    if (!root) {
+        return 1;
+    }
     func(root);
-    if (root->left != root) {
+    if (root && root->left != root) {
         do_preorder(root->left, func);
     }
-    if (root->right != root) {
+    if (root && root->right != root) {
         do_preorder(root->right, func);
     }
 
     return 0;
 }
 
-int do_inorder(struct tree *root, void (*func)(void *)) {
-    if (root->left != root) {
+int do_inorder(struct tree *root, void (*func)(struct tree *)) {
+    if (!root) {
+        return 1;
+    }
+
+    if (root->left && root->left != root) {
         do_inorder(root->left, func);
     }
     func(root);
-    if (root->right != root) {
+    if (root->right && root->left != root) {
         do_inorder(root->right, func);
     }
 
     return 0;
 }
 
-int do_postorder(struct tree *root, void (*func)(void *)) {
-    if (root->left != root) {
+int do_postorder(struct tree *root, void (*func)(struct tree *)) {
+    if (!root) {
+        return 1;
+    }
+    if (root->left && root->left != root) {
         do_postorder(root->left, func);
     }
-    if (root->right != root) {
+    if (root->right && root->right != root) {
         do_postorder(root->right, func);
     }
     func(root);

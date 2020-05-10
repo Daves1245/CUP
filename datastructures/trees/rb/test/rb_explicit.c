@@ -3,6 +3,8 @@
 
 #include "../../include/tree.h"
 
+/* XXX move to .. and generalize */
+
 /*
  * Let:
  *  1 = RED,
@@ -157,46 +159,15 @@ static int rb_fix(struct rb *root, struct rb *node) {
     rb_fix(root, node->parent);
 }
 
-int do_inorder(struct rb *root, void (*func)(struct rb *)) {
-    if (!root) {
-        return 0;
-    }
-#ifdef DEBUG
-    printf("a\n");
-#endif
-    if (root->left != &nil) {
-#ifdef DEBUG
-        printf("b\n");
-#endif
-        do_inorder(root->left, func);
-    }
-#ifdef DEBUG
-    printf("-b\n");
-#endif
-    func(root);
-#ifdef DEBUG
-    printf("c\n");
-#endif
-    if (root->right != &nil) {
-#ifdef DEBUG
-        printf("d\n");
-#endif
-        do_inorder(root->right, func);
-    }
-#ifdef DEBUG
-    printf("e\n");
-#endif
-}
-
 int rb_ins(struct rb *root, struct rb *node) {
     node->color = 1; /* Set the inserted node's color to red */
     bt_ins(root, node);
     rb_fix(root, node);
 }
 
-void printdata(struct rb *n) {
+void printdata(struct tree *n) {
     //printf("p: %p ", n);
-    printf("%d ", n->key);
+    printf("%d ", ((struct rb *) n)->key);
 }
 
 int main(int argc, char **argv) {

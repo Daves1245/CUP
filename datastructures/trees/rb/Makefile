@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-Wall
+FLAGS=-Wall 
 SOURCES = rb.c
 
 CFG=release
@@ -10,7 +10,7 @@ ifneq ($(CFG), debug)
 endif
 endif
 ifeq ($(CFG), debug)
-	FLAGS += -DDEBUG
+	FLAGS += -g -g3 -O0 -DDEBUG
 endif
 
 .PHONY: all clean

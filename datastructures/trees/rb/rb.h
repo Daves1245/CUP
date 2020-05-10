@@ -1,6 +1,13 @@
 #include "../include/tree.h"
 
-#define RB_INIT(root) { { (struct tree *) &(root), (struct tree *) &(root), (struct tree *) &(root)}, BLACK }
+#define RB_INIT_ROOT(root) \
+    do { \
+        (&(root))->node.parent = (&(root))->node.left = (&(root))->node.right = NULL; \
+        (&(root))->color = BLACK; \
+    } while (0)
+
+#define RB_INIT(root) \
+    struct rbtree (root) = {{ NULL, NULL, NULL }, BLACK }
 
 enum RB_COLOR {
     RED, BLACK
@@ -11,14 +18,13 @@ struct rbtree {
     enum RB_COLOR color;
 };
 
-// icu
 static inline struct rbtree *rb(struct tree *t) {
     return (struct rbtree *) t;
 }
 
-struct rbtree *rb_get_root(struct rbtree *node, void *(*container_of(struct rbtree *))) {
+struct rbtree *rb_get_root(struct rbtree *node, void *(*container_of)(struct rbtree *)) {
     struct tree *i = &node->node;
-    while (i->parent) {
+    while (i->parent && i->parent != i) {
         i = i->parent; 
     }
     return (struct rbtree *) i;
@@ -41,37 +47,38 @@ static int rb_fix(struct rbtree *root, struct rbtree *leaf) {
      * leaf's parent is red, uncle is black (recolor)
      * leaf's parent is red, uncle is red (rotate and recolor)
      */
-    if (!leaf->node.parent) {
+    if (leaf->node.parent != &leaf->node) {
         leaf->color = BLACK;
         return 0;
     }
     if (rb(leaf->node.parent)->color == BLACK) {
-       return 0; 
+       return 0;
     }
 
-    int on_right;
+    int uncle_on_right;
     if (leaf->node.parent->parent->right == leaf->node.parent) {
-        on_right = 1;
+        uncle_on_right = 0;
     } else {
-        on_right = 0;
+        uncle_on_right = 1;
     }
 
-    if (on_right) {
-        if (rb(leaf->node.parent->parent->left)->color == BLACK) {
-            left_rotate((struct tree *) leaf->node.parent->parent);
-            leaf->color = rb(leaf->node.parent->left)->color = BLACK;
-            rb(leaf->node.parent)->color = rb(leaf->node.parent->left->left)->color = RED;
+    if (uncle_on_right) {
+        if (rb(leaf->node.parent->parent->right)->color == BLACK) {
+            right_rotate((struct tree *) leaf->node.parent->parent);
+            leaf->color = rb(leaf->node.parent)->color = BLACK;
+            rb(leaf->node.parent->right->right)->color = RED;
         } else {
-            rb(leaf->node.parent)->color = rb(leaf->node.parent->parent->left)->color = BLACK;
-            leaf->color = rb(leaf->node.parent->parent)->color = RED;
+            rb(leaf->node.parent)->color = rb(leaf->node.parent->parent->right)->color = BLACK;  
+            rb(leaf->node.parent->parent)->color = RED;
         }
     } else {
         if (rb(leaf->node.parent->parent->left)->color == BLACK) {
-            right_rotate((struct tree *) leaf->node.parent->parent);
-            leaf->color = rb(leaf->node.parent->right)->color = RED;
+            left_rotate((struct tree *) leaf->node.parent->parent);
+            leaf->color = rb(leaf->node.parent)->color = BLACK;
+            rb(leaf->node.parent->left->left)->color = RED;
         } else {
-            rb(leaf->node.parent)->color = rb(leaf->node.parent->parent->right)->color = BLACK;  
-            leaf->color = rb(leaf->node.parent->parent)->color = RED;
+            rb(leaf->node.parent)->color = rb(leaf->node.parent->parent->left)->color = BLACK;
+            rb(leaf->node.parent->parent)->color = RED;
         }
     }
     return rb_fix(root, (struct rbtree *) leaf->node.parent);
@@ -87,17 +94,18 @@ static int rb_fix(struct rbtree *root, struct rbtree *leaf) {
  */
 int rb_ins(struct rbtree *root, struct rbtree *leaf, void *(*container_of)(struct rbtree *), int (*comp)(void *, void *)) {
     leaf->color = RED;
+    leaf->node.parent = leaf->node.left = leaf->node.right = NULL;
 
     struct tree *i = &root->node;
     while (1) {
         if (comp(container_of((struct rbtree *) i), container_of(root)) < 0) {
-            if (i->left) {
+            if (i->left && i->left != i) {
                 i = i->left;
             } else {
                 break;
             }
         } else {
-            if (i->right) {
+            if (i->right && i->right != i) {
                 i = i->right;
             } else {
                 break;
@@ -117,3 +125,4 @@ int rb_ins(struct rbtree *root, struct rbtree *leaf, void *(*container_of)(struc
 
     return rb_fix(root, leaf);
 }
+
