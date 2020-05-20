@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-Wall 
+FLAGS=-Wall -fstack-protector
 SOURCES = rb.c
 
 CFG=release
@@ -10,7 +10,9 @@ ifneq ($(CFG), debug)
 endif
 endif
 ifeq ($(CFG), debug)
-	FLAGS += -g -g3 -O0 -DDEBUG
+	FLAGS += -g3 -O0 -DDEBUG
+else
+	FLAGS += -O2
 endif
 
 .PHONY: all clean

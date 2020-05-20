@@ -19,8 +19,9 @@ int comp(void *a, void *b) {
     return ((struct myintrbtree *) a)->data - ((struct myintrbtree *) b)->data;
 }
 
-void printdata(struct tree * elem) {
-    printf("%d ", ((struct myintrbtree *) container_of((struct rbtree *)elem))->data);
+void printdata(struct tree *elem) {
+    struct myintrbtree *ep = (struct myintrbtree *) container_of((struct rbtree *) elem);
+    printf("%d ", ep->data);
 }
 
 int main(int argc, char **argv) {
@@ -31,6 +32,8 @@ int main(int argc, char **argv) {
     
     struct myintrbtree *root = malloc(sizeof(struct myintrbtree));
     RB_INIT_ROOT(root->rbt);
+
+    struct rbtree *rt = &root->rbt;
 
     if (!root) {
         fprintf(stderr, "malloc error\n");
@@ -45,15 +48,18 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
         scanf("%d", &tmp->data);
+        tmp->rbt.node.left = tmp->rbt.node.right = NULL;
         /*
          * You can either have struct rbtree be the first member of 
          * your desired struct and directly insert it with a cast,
          * or just give it a pointer to the struct rbtree member
          * within your struct of choice */
-        rb_ins((struct rbtree *) root, (struct rbtree *) tmp, container_of, comp);
-        printf("Inorder Traversal: ");
-        do_inorder((struct tree *) rb_get_root(&root->rbt, container_of), printdata);
+        rb_ins(&rt, (struct rbtree *) tmp, container_of, comp);
+        printf("traversal: ");
+        rt = rb_get_root(rt);
+        do_inorder(&rt->node, printdata);
         puts("");
+        printf("root: %d\n", ((struct myintrbtree *) container_of(rt))->data);
     }
 
     /* By the current implementation, the root node may have been

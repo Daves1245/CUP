@@ -6,4 +6,6 @@
 #include "traversals.h"
 #include "macros.h"
 
+struct tree nil = {NULL, NULL, NULL};
+
 #endif
