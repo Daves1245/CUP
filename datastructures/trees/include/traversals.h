@@ -54,4 +54,24 @@ int do_postorder(struct tree *root, void (*func)(struct tree *)) {
     return 0;
 }
 
+struct tree *inorder_successor(struct tree *node) {
+    struct tree *i = node;
+    if (i->right && i->right != i) {
+        i = i->right;
+        while (i->left && i->left != i) {
+            i = i->left;
+        }
+
+        return i;
+    } else {
+        while (i->parent && i->parent != i) {
+            if (i == i->parent->left) {
+                return i->parent->right;
+            }
+        }
+    }
+
+    return i;
+}
+
 #endif

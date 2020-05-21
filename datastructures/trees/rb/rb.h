@@ -6,8 +6,8 @@
         (&(root))->color = BLACK; \
     } while (0)
 
-#define RB_INIT(root) \
-    struct rbtree (root) = {{ NULL, NULL, NULL }, BLACK }
+#define RB_INIT_NODE(root) \
+    struct rbtree (root) = {{ NULL, NULL, NULL }, RED }
 
 enum RB_COLOR {
     RED, BLACK
@@ -77,10 +77,16 @@ static int rb_fix(struct rbtree **root, struct rbtree *leaf) {
             } else {
                 if (leaf == (struct rbtree *) parent(leaf)->node.right) {
                     leaf = parent(leaf);
+                    if (*root == leaf) {
+                        *root = (struct rbtree *) leaf->node.right;
+                    }
                     left_rotate((struct tree *) leaf);
                 }
                 parent(leaf)->color = BLACK;
                 parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                }
                 right_rotate(leaf->node.parent->parent);
             }
         } else {
@@ -93,10 +99,16 @@ static int rb_fix(struct rbtree **root, struct rbtree *leaf) {
             } else {
                 if (leaf == (struct rbtree *) parent(leaf)->node.left) {
                     leaf = parent(leaf);
+                    if (*root == leaf) {
+                        *root = (struct rbtree *) leaf->node.right;
+                    }
                     right_rotate((struct tree *) leaf);
                 }
                 parent(leaf)->color = BLACK;
                 parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->left;
+                }
                 left_rotate(leaf->node.parent->parent);
             }
         }
@@ -108,14 +120,6 @@ static int rb_fix(struct rbtree **root, struct rbtree *leaf) {
     return 0;
 }
 
-/*
- * XXX benchmark the difference between
- * inserting at a random node in an RB Tree (what this will become
- * if the root isn't properly updated in user space) vs updating user's root
- * and inserting from there. 
- * XXX! if updating user space root, how to achieve? functions that return new root
- * of tree, or double pointer that updates pointer to root?
- */
 int rb_ins(struct rbtree **root, struct rbtree *leaf, void *(*container_of)(struct rbtree *), int (*comp)(void *, void *)) {
     leaf->color = RED;
 
@@ -147,5 +151,13 @@ int rb_ins(struct rbtree **root, struct rbtree *leaf, void *(*container_of)(stru
     }
 
     return rb_fix(root, leaf);
+}
+
+int rb_del(struct rbtree **root, struct rbtree *node) {
+    return 0; // XXX
+}
+
+void *rb_find(struct rbtree *root, void *val, int (*comp)(void *, void *), void *container_of(struct rbtree *)) {
+    return NULL; // XXX
 }
 
