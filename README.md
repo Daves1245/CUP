@@ -2,16 +2,25 @@
 
 A collection of just-for-fun common data structures, algorithms, and other things written in C.
 
-### Why?
-What's life without a challenge?
+## What's in this thing?
+### Datastructures:
+* Linked List
+* Vector / Arraylist
+* Heap
+* Stack
+* Queue
+* Priority Queue
+* Segment Tree
+* Binary Search Tree
+* Red Black Tree
 
-### What's in this thing?
-Each of the following data structures has its own implementation in this repository:
-	Linked List
-	Vector / Arraylist
-	Stack
-	Queue
-	Priority Queue
-	Segment Tree
-	Binary Search Tree
+### Algorithms:
+#### Sorting
+* Bubble Sort
+* Counting Sort
+* Radix Sort
+* Insertion Sort
+* Selection Sort
+* Quicksort
+* Merge Sort
 
