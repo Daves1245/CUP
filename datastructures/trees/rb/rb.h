@@ -107,20 +107,23 @@ static int rb_fix(struct rbtree **root, struct rbtree *leaf) {
                 parent(leaf)->color = BLACK;
                 parent(parent(leaf))->color = RED;
                 if (*root == (struct rbtree *) leaf->node.parent->parent) {
-                    *root = (struct rbtree *) leaf->node.parent->parent->left;
+                    *root = (struct rbtree *) leaf->node.parent->parent->right;
                 }
                 left_rotate(leaf->node.parent->parent);
             }
         }
 
+        (*root)->color = BLACK;
+        /*
         if (!leaf->node.parent || leaf->node.parent == &leaf->node) {
             leaf->color = BLACK;
-        }        
+        }*/
     }
     return 0;
 }
 
 int rb_ins(struct rbtree **root, struct rbtree *leaf, void *(*container_of)(struct rbtree *), int (*comp)(void *, void *)) {
+    (*root)->color = BLACK;
     leaf->color = RED;
 
     struct tree *i = &(*root)->node;
@@ -153,7 +156,7 @@ int rb_ins(struct rbtree **root, struct rbtree *leaf, void *(*container_of)(stru
     return rb_fix(root, leaf);
 }
 
-int rb_del(struct rbtree **root, struct rbtree *node) {
+int rb_del(struct rbtree *node) {
     return 0; // XXX
 }
 

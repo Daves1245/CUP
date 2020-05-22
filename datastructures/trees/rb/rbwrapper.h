@@ -23,14 +23,20 @@ void rb_printdata(struct tree *elem) {
     printf("%d ", ep->data);
 }
 
-void tree_ins(struct tree **root, void *elem) {
-    rb_ins(root, elem, rb_comp, rb_container_of);
+void rb_ins_wrapper(struct tree **root, void *elem) {
+    struct rbtree *tmp = (struct rbtree *) *root;
+    rb_ins(&tmp, elem, rb_container_of, rb_comp);
+    *root = (struct tree *) tmp;
+}
+
+void rb_del_wrapper(struct tree *node) {
+    rb_del((struct rbtree *) node);
 }
 
 void rb_printerrinfo(int status) {
     switch (status) {
         case NOT_BST:
-            printf("Not a BST tree\n");
+            printf("Not a BST\n");
             break;
         case ROOT_NOT_BLACK:
             printf("The root node is not black\n");
