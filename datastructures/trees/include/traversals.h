@@ -66,12 +66,13 @@ struct tree *inorder_successor(struct tree *node) {
     } else {
         while (i->parent && i->parent != i) {
             if (i == i->parent->left) {
-                return i->parent->right;
+                return i->parent;
             }
+            i = i->parent;
         }
     }
 
-    return i;
+    return NULL;
 }
 
 #endif
