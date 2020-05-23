@@ -213,6 +213,45 @@ void *rb_genelem(int val) {
     return ret;
 }
 
+int getdata(struct tree *t) {
+    return ((struct myintrbtree *) t)->data;
+}
+
+void interactive(struct tree_context *tctx) {
+    char buff[100];
+    int state = 0, first = 1;
+    struct myintrbtree *root = malloc(sizeof(struct myintrbtree));
+    struct tree *rb;
+    rb = (struct tree *) root;
+    tctx->root = &rb;
+    do {
+        scanf("%s", buff);
+        switch (*buff) {
+            case 'i':
+                state = 1;
+                break;
+            case 'p':
+                state = 0;
+                printf("> ");
+                do_inorder(*tctx->root, printdata);
+                puts("");
+                break;
+            default:
+                if (!state) {
+                    printf("assuming insert\n");
+                    state = 1;
+                } 
+                if (first) {
+                    first = 0;
+                    ((struct myintrbtree *) *tctx->root)->data = atoi(buff);
+                    break;
+                }
+                tctx->tree_ins(tctx->root, tctx->generate_elem(atoi(buff)));
+        }
+    } while (strcmp(buff, "exit") != 0);
+
+}
+
 int main(int argc, char **argv) {
     srand(time(NULL));
 

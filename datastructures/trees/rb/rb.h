@@ -58,66 +58,49 @@ static inline struct rbtree *uncle(struct rbtree *e) {
  * and bring together all the code into one, beautiful, elegant program
  */
 // TODO rename leaf-not appropriate after successive iterations of while loop
+
 static int rb_fix(struct rbtree **root, struct rbtree *leaf) {
-    /* 4 cases:
-     * leaf is root (recolor)
-     * leaf's parent is black (do nothing)
-     * leaf's parent is red, uncle is black (recolor)
-     * leaf's parent is red, uncle is red (rotate and recolor)
-     */
-    while (parent(leaf) && parent(leaf)->color == RED) {
+    while (leaf != *root && parent(leaf) && parent(leaf)->color == RED) {
         struct rbtree *y;
         if (parent(leaf) == (struct rbtree *) parent(parent(leaf))->node.left) {
             y = (struct rbtree *) parent(parent(leaf))->node.right;
             if (y && y->color == RED) {
                 parent(leaf)->color = y->color = BLACK;
-                y->color = BLACK;
                 parent(parent(leaf))->color = RED;
                 leaf = parent(parent(leaf));
             } else {
                 if (leaf == (struct rbtree *) parent(leaf)->node.right) {
                     leaf = parent(leaf);
-                    if (*root == leaf) {
-                        *root = (struct rbtree *) leaf->node.right;
-                    }
                     left_rotate((struct tree *) leaf);
                 }
                 parent(leaf)->color = BLACK;
                 parent(parent(leaf))->color = RED;
                 if (*root == (struct rbtree *) leaf->node.parent->parent) {
-                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                    *root = (struct rbtree *) leaf->node.parent->parent->left;
                 }
                 right_rotate(leaf->node.parent->parent);
             }
         } else {
             y = (struct rbtree *) parent(parent(leaf))->node.left;
             if (y && y->color == RED) {
-                parent(leaf)->color = BLACK;
-                y->color = BLACK;
+                parent(leaf)->color = y->color = BLACK;
                 parent(parent(leaf))->color = RED;
                 leaf = parent(parent(leaf));
             } else {
                 if (leaf == (struct rbtree *) parent(leaf)->node.left) {
                     leaf = parent(leaf);
-                    if (*root == leaf) {
-                        *root = (struct rbtree *) leaf->node.right;
-                    }
                     right_rotate((struct tree *) leaf);
                 }
                 parent(leaf)->color = BLACK;
                 parent(parent(leaf))->color = RED;
-                if (*root == (struct rbtree *) leaf->node.parent->parent) {
-                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                if (*root == parent(parent(leaf))) {
+                    *root = (struct rbtree *) parent(parent(leaf))->node.right;
                 }
                 left_rotate(leaf->node.parent->parent);
             }
         }
 
         (*root)->color = BLACK;
-        /*
-        if (!leaf->node.parent || leaf->node.parent == &leaf->node) {
-            leaf->color = BLACK;
-        }*/
     }
     return 0;
 }
@@ -164,3 +147,55 @@ void *rb_find(struct rbtree *root, void *val, int (*comp)(void *, void *), void 
     return NULL; // XXX
 }
 
+static int rb_fix_old(struct rbtree **root, struct rbtree *leaf) {
+    while (parent(leaf) && parent(leaf)->color == RED) {
+        struct rbtree *y;
+        if (parent(leaf) == (struct rbtree *) parent(parent(leaf))->node.left) {
+            y = (struct rbtree *) parent(parent(leaf))->node.right;
+            if (y && y->color == RED) {
+                parent(leaf)->color = y->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                leaf = parent(parent(leaf));
+            } else {
+                if (leaf == (struct rbtree *) parent(leaf)->node.right) {
+                    leaf = parent(leaf);
+                    if (*root == leaf) {
+                        *root = (struct rbtree *) leaf->node.right;
+                    }
+                    left_rotate((struct tree *) leaf);
+                }
+                parent(leaf)->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                }
+                right_rotate(leaf->node.parent->parent);
+            }
+        } else {
+            y = (struct rbtree *) parent(parent(leaf))->node.left;
+            if (y && y->color == RED) {
+                parent(leaf)->color = BLACK;
+                y->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                leaf = parent(parent(leaf));
+            } else {
+                if (leaf == (struct rbtree *) parent(leaf)->node.left) {
+                    leaf = parent(leaf);
+                    if (*root == leaf) {
+                        *root = (struct rbtree *) leaf->node.right;
+                    }
+                    right_rotate((struct tree *) leaf);
+                }
+                parent(leaf)->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                }
+                left_rotate(leaf->node.parent->parent);
+            }
+        }
+
+        (*root)->color = BLACK;
+    }
+    return 0;
+}
