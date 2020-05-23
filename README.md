@@ -12,7 +12,7 @@ A collection of just-for-fun common data structures, algorithms, and other thing
 * Priority Queue
 * Segment Tree
 * Binary Search Tree
-* Red Black Tree
+* Red-Black Tree (work in progress)
 
 ### Algorithms:
 #### Sorting
