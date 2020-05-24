@@ -8,8 +8,8 @@
 #include "rb.h"
 #include "rbwrapper.h"
 
-#define MAX_ITERATIONS 100
-#define MAX_TREE_SIZE 100
+#define MAX_ITERATIONS 50
+#define MAX_TREE_SIZE 50
 #define MAX_ELEM_SIZE 10000
 
 // XXX IMPORTANT: remove container_of from rb.h - not necessary
@@ -62,7 +62,7 @@ int min(int a, int b) {
 }
 
 int max(int a, int b) {
-    return a < b ? a : b;
+    return a > b ? a : b;
 }
 
 void getminmaxpath(struct tree *elem, int *shortest, int *longest, int *cur) {
@@ -97,15 +97,12 @@ int checkblackheight(struct tree *elem, int *standard, int *cur) {
     if (parent((struct rbtree *) elem) && ((struct rbtree *) elem)->color == BLACK) {
         (*cur)++;
     }
-
     if (!standard && !elem->left && !elem->right) {
         *standard = *cur;
     }
-
     if (!elem->left && !elem->right && *cur != *standard) {
         return 1;
     }
-
     if (elem->left && elem->left != elem) {
         checkblackheight(elem->left, standard, cur);
     }
@@ -148,32 +145,39 @@ void rb_verify(struct tree_context *tctx, struct results *res) {
         prev = ((struct myintrbtree *) container_of((struct rbtree *) iterator))->data;
     }
 
-    int shortest = tctx->num_elems, longest = 0, cur = 0;
+    int shortest = tctx->num_elems, longest = 1, cur = 1;
     getminmaxpath(*tctx->root, &shortest, &longest, &cur);
-    if (shortest * 2 > longest) {
+    if (shortest * 2 < longest) {
         res->errno = NOT_BALANCED;
+        res->node_failed = *tctx->root;
         return;
     }
+
 
     if (do_inorder(*tctx->root, checkredcoloring)) {
         res->errno = TWO_CONSECUTIVE_RED_NODES;
+        res->node_failed = *tctx->root;
         return;
     }
 
-    int standard = 0;
-    cur = 0;
+    int standard = 1;
+    cur = 1;
 
     // TODO check every path on every node, this just checks every root-nil path
     if (checkblackheight(*tctx->root, &standard, &cur)) {
         res->errno = DIFFERING_BLACKHEIGHTS;
+        res->node_failed = *tctx->root;
         return;
     }
 }
 
-
 void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
     clock_t start, end;
     double avgt = 0, totalt = 0;
+
+    do_inorder(*tctx->root, printdata);
+    puts("");
+
     for (int i = 0; i < bctx->max_iterations; i++) {
         for (int j = 0; j < bctx->max_tree_size; j++) {
             start = clock();
@@ -194,12 +198,12 @@ void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
             printf("near: %d", ((struct myintrbtree *) res.node_failed)->data);
             puts("");
             do_inorder(*tctx->root, printdata);
+            puts("");
             exit(EXIT_FAILURE);
         } else {
-            printf("case %d PASSED\n", i);
+            printf("Case %d PASSED\n", i);
         }
     }
-
     printf("%s ins\nTotal time = %.2fms, Avg time = %.2fms\n", tctx->name, totalt, avgt);
 }
 
@@ -217,40 +221,44 @@ int getdata(struct tree *t) {
     return ((struct myintrbtree *) t)->data;
 }
 
-void interactive(struct tree_context *tctx) {
-    char buff[100];
-    int state = 0, first = 1;
-    struct myintrbtree *root = malloc(sizeof(struct myintrbtree));
-    struct tree *rb;
-    rb = (struct tree *) root;
-    tctx->root = &rb;
-    do {
-        scanf("%s", buff);
-        switch (*buff) {
-            case 'i':
-                state = 1;
-                break;
-            case 'p':
-                state = 0;
-                printf("> ");
-                do_inorder(*tctx->root, printdata);
-                puts("");
-                break;
-            default:
-                if (!state) {
-                    printf("assuming insert\n");
-                    state = 1;
-                } 
-                if (first) {
-                    first = 0;
-                    ((struct myintrbtree *) *tctx->root)->data = atoi(buff);
-                    break;
-                }
-                tctx->tree_ins(tctx->root, tctx->generate_elem(atoi(buff)));
-        }
-    } while (strcmp(buff, "exit") != 0);
+/*void interactive(void) {
+  char buff[100];
+  int state = 0, first = 1;
+  struct myintrbtree *root = malloc(sizeof(struct myintrbtree));
+  struct rbtree *rbroot = &root->rbt;
+  do {
+  scanf("%s", buff);
+  switch (*buff) {
+  case 'i':
+  state = 1;
+  break;
+  case 'p':
+  state = 0;
+  printf("> ");
+  do_inorder(rbroot, printdata);
+  puts("");
+  break;
+  default:
+  if (!state) {
+  printf("assuming insert\n");
+  state = 1;
+  } 
+  if (first) {
+  first = 0;
+  root->data = atoi(buff);
+  break;
+  }
+  struct myintrbtree *tmp = malloc(sizeof(struct myintrbtree));
+  if (!tmp) {
+  fprintf(stderr, "malloc returned null. exiting\n");
+  exit(EXIT_FAILURE);
+  }
+  tmp->data = atoi(buff);
+  rb_ins_wrapper(rbroot, (struct rbtree *) tmp);
+  }
+  } while (strcmp(buff, "exit") != 0);
 
-}
+  }*/
 
 int main(int argc, char **argv) {
     srand(time(NULL));
@@ -270,13 +278,13 @@ int main(int argc, char **argv) {
 
     struct tree_context trees[1] = {{
         "Red Black Tree",
-        &rbroot,
-        MAX_TREE_SIZE,
-        rb_ins_wrapper,
-        rb_del_wrapper,
-        rb_genelem,
-        rb_verify,
-        rb_printerrinfo
+            &rbroot,
+            MAX_TREE_SIZE,
+            rb_ins_wrapper,
+            rb_del_wrapper,
+            rb_genelem,
+            rb_verify,
+            rb_printerrinfo
     }};
 
     if (argc > 1) {
@@ -289,10 +297,6 @@ int main(int argc, char **argv) {
 
     if (argc > 3) {
         bctx.max_elem_size = atoi(argv[3]);
-    }
-
-    for (int i = 0; i < 10; i++) {
-        rb_ins_wrapper(&rbroot, rb_genelem(i));
     }
 
     benchmark(&bctx, &trees[0]);
