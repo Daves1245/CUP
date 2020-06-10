@@ -1,7 +1,14 @@
 #ifndef CUP_STACK_H
 #define CUP_STACK_H
 
-struct stack;
+struct list {
+    struct list *next, *prev;
+};
+
+struct stack {
+  struct list base;
+};
+
 typedef struct stack stack;
 
 void stack_new(stack *s);

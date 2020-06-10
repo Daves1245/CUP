@@ -151,7 +151,11 @@ static int rb_fix_old(struct rbtree **root, struct rbtree *leaf) {
     while (parent(leaf) && parent(leaf)->color == RED) {
         struct rbtree *y;
         if (parent(leaf) == (struct rbtree *) parent(parent(leaf))->node.left) {
-            y = (struct rbtree *) parent(parent(leaf))->node.right;
+            struct rbtree *grandparent = parent(parent(leaf));
+            if (!grandparent) {
+                printf("ERROR: this should not be reached!\n");
+            }
+            y = (struct rbtree *) grandparent->node.right;
             if (y && y->color == RED) {
                 parent(leaf)->color = y->color = BLACK;
                 parent(parent(leaf))->color = RED;

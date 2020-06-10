@@ -9,21 +9,29 @@
     } while (0);
 
 // XXX
+
+struct node {
+    struct node *left, *right, *parent;
+    int data;
+};
+
 struct heap_context {
-    void *heap;
-    size_t size;
-    int (*comp)(const void *, const void *);
+    int arr_len;
+    int max_elem_val;
+    int min_elem_val;
+    int heap_size;
+    int (*comp)(int, int); /* comparator function */
 };
 
 /* Pop max/min element from heap */
 int heap_pop(int *arr, size_t len, int (*comp)(int, int));
 
 /* Heapify an array */
-void heapify(int *arr, size_t len, unsigned i, int (*comp)(int, int));
+void heapify(int *arr, struct heap_context *hctx, int i);
 /* Build a heap with comparator func */
-void build_heap(int *arr, size_t len, int (*comp)(int, int));
+void build_heap(int *arr, struct heap_context *hctx);
 
 /* Sort array using a heap */
-void heapsort(int *arr, size_t len);
+void heapsort(int *arr, struct heap_context *hctx);
 
 #endif

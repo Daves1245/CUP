@@ -171,6 +171,12 @@ void rb_verify(struct tree_context *tctx, struct results *res) {
     }
 }
 
+void rmnode(struct tree *n) {
+    struct myintrbtree *i = (struct myintrbtree *) n;
+    free(i);
+}
+
+// XXX remove all elements from tree and start over fresh
 void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
     clock_t start, end;
     double avgt = 0, totalt = 0;
@@ -203,6 +209,8 @@ void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
         } else {
             printf("Case %d PASSED\n", i);
         }
+
+        do_inorder(*tctx->root, rmnode);
     }
     printf("%s ins\nTotal time = %.2fms, Avg time = %.2fms\n", tctx->name, totalt, avgt);
 }
