@@ -1,5 +1,6 @@
 CC=gcc
-SOURCE=heap.c
+SOURCE=heap.c main.c include/util.c
+INC=-Iinclude/
 FLAGS=-lm
 CFG=release
 
@@ -14,6 +15,6 @@ ifeq ($(CFG), debug)
 endif
 
 all:
-	$(CC) $(SOURCE) -o run $(FLAGS)
+	$(CC) $(INC) $(SOURCE) -o run $(FLAGS)
 clean:
 	rm run

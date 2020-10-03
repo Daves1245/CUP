@@ -1,0 +1,7 @@
+How can bst_ins(root, my_struct_instance, comparator) call container_of
+to properly use the comparator function pointer?
+    Remember:
+        - comparator should compare user-defined structs that are containers
+            of the struct tree *member variable. Does this mean the only way
+            to make bst_ins would be with a macro like the definition of
+            container_of?
