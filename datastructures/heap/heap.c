@@ -3,7 +3,12 @@
 #include <stdlib.h>
 
 #include "heap.h"
-#include "util.h"
+
+void swap(int *arr, int a, int b) {
+    int tmp = arr[a];
+    arr[a] = arr[b];
+    arr[b] = tmp;
+}
 
 int parent(int i) {
     return i / 2;
@@ -19,7 +24,7 @@ int right(int i) {
 
 /* Percolate an element up the heap */
 void percolateUp(int *arr, struct heap *hctx, int i) {
-    while (i != ROOT && hctx->comp(arr[i], arr[parent(i)])) {
+    while (i != ROOT && !hctx->comp(arr[i], arr[parent(i)])) {
         swap(arr, i, parent(i));
         i = parent(i);
     }
@@ -29,10 +34,10 @@ void percolateUp(int *arr, struct heap *hctx, int i) {
 void percolateDown(int *arr, struct heap *hctx, int i) {
     int swapi = i;
     // printf("i = %d, a[i, l(i), r(i)] = %d, %d, %d\n", i, arr[i], arr[left(i)], arr[right(i)]);
-    if (left(i) <= hctx->heap_size && hctx->comp(arr[i], arr[left(i)])) {
+    if (left(i) <= hctx->heap_size && !hctx->comp(arr[i], arr[left(i)])) {
         swapi = left(i);
     }
-    if (right(i) <= hctx->heap_size && hctx->comp(arr[swapi], arr[right(i)])) {
+    if (right(i) <= hctx->heap_size && !hctx->comp(arr[swapi], arr[right(i)])) {
         swapi = right(i);
     }
 

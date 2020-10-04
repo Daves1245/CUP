@@ -6,12 +6,6 @@
 int left(int);
 int right(int);
 
-void swap(int *arr, int a, int b) {
-    int tmp = arr[a];
-    arr[a] = arr[b];
-    arr[b] = tmp;
-}
-
 int rand_in_range(int min, int max) {
     return min + rand() / (RAND_MAX / (max - min + 1) + 1);
 }
@@ -55,12 +49,14 @@ int is_heap(void *arr, int heap_size, size_t elem_size, int (*comp)(void *, void
 
         if (!comp(&a[i * elem_size], &a[left(i) * elem_size])) {
             printf("FAILED AT INDEX i = %d, l(i) = %d\n", i, left(i));
+            printf("VALUES AT i, left(i) = %d, %d\n", ((int *) arr)[i], ((int *) arr)[left(i)]);
             printf("i vs left(i): %d\n", comp(&a[i * elem_size], &a[(left(i) * elem_size)]));
             return 0;
         }
 
         if (!comp(&a[i * elem_size], &a[right(i) * elem_size])) {
             printf("FAILED AT INDEX i = %d, r(i) = %d\n", i, right(i));
+            printf("VALUES AT i, right(i) = %d, %d\n", ((int *) arr)[i], ((int *) arr)[right(i)]);
             printf("i vs right(i): %d\n", comp(&a[i * elem_size], &a[right(i) * elem_size]));
             return 0;
         }

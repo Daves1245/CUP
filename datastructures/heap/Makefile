@@ -1,6 +1,6 @@
 CC=gcc
-SOURCE=heap.c main.c include/util.c
-INC=-Iinclude/
+SOURCE=heap.c main.c benchmarking.c 
+INC=-I./
 FLAGS=-lm
 CFG=release
 

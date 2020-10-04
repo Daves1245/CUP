@@ -1,6 +1,8 @@
 #ifndef CUP_HEAP_H
 #define CUP_HEAP_H
 
+#include <stdlib.h>
+
 #define HEAP_SIZE 100
 #define HEAP_MAX_ELEM_VALUE 1000
 #define HEAP_MIN_ELEM_VALUE 1
@@ -35,6 +37,8 @@ void percolateUp(int *arr, struct heap *hctx, int i);
 int heap_insert(int *arr, struct heap *hctx, int val);
 /* Delete an element from the heap */
 int heap_extract(int *arr, struct heap *hctx);
+/* Swap two elements in an array */
+void swap(int *arr, int a, int b);
 
 /* - - -  Abstract variations - - - */
 void *abstract_heap_pop(void *arr, struct abstract_heap *ahctx);
