@@ -27,3 +27,26 @@ void unionSet(int i, int j, struct ufds *uf) {
         }
     }
 }
+
+// Find the number of items in a set
+int num_sets(struct ufds *uf) {
+    int count = 0;
+    for (int i = 0; i < SIZE OF PARENTS ARR; i++) {
+        if (p[i] != i) {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Find the size of a set
+int set_size(int i, struct ufds *uf) {
+    int count = 0;
+    for (int j = 0; j < SIZE OF PARENTS ARR; j++) {
+        if (findSet(j) == i) {
+            count++; 
+        }
+    }
+    return count;
+}
+
