@@ -55,11 +55,18 @@ int is_sorted(int *arr, struct sort_context *ctx) {
 int is_heap(struct heap *hp, struct sort_context *sctx) {
     for (int i = ROOT; i < hp->heap_size; i++) {
         if (left(i) <= hp->heap_size) {
-            if (!sctx->comp(hp->arr[i], hp->arr[left(i)]) || !sctx->comp(hp->arr[i], hp->arr[right(i)])) {
+            if (!sctx->comp(hp->arr[i], hp->arr[left(i)])) {
                 sctx->failed[0] = i;
                 sctx->failed[1] = left(i);
                 sctx->failed[2] = right(i);
                 return 0;
+            }
+        }
+        if (right(i) <= hp->heap_size) {
+            if (!sctx->comp(hp->arr[i], hp->arr[right(i)])) {
+                sctx->failed[0] = i;
+                sctx->failed[1] = left(i);
+                sctx->failed[2] = right(i);
             }
         }
     }

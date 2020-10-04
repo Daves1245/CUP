@@ -33,7 +33,6 @@ void percolateUp(int *arr, struct heap *hctx, int i) {
 /* Percolate an element down the heap */
 void percolateDown(int *arr, struct heap *hctx, int i) {
     int swapi = i;
-    // printf("i = %d, a[i, l(i), r(i)] = %d, %d, %d\n", i, arr[i], arr[left(i)], arr[right(i)]);
     if (left(i) <= hctx->heap_size && !hctx->comp(arr[i], arr[left(i)])) {
         swapi = left(i);
     }
@@ -44,6 +43,20 @@ void percolateDown(int *arr, struct heap *hctx, int i) {
     if (i != swapi) {
         swap(arr, i, swapi);
         percolateDown(arr, hctx, swapi);
+    }
+}
+
+void _percolateDown(int *arr, struct heap *hp, int i) {
+    int swapi = i;
+    if (left(i) <= hp->heap_size && hp->comp(arr[i], arr[left(i)])) {
+        swapi = left(i);
+    }
+    if (right(i) <= hp->heap_size && hp->comp(arr[swapi], arr[right(i)])) {
+        swapi = right(i);
+    }
+    if (swapi != i) {
+        swap(arr, i, swapi);
+        _percolateDown(arr, hp, swapi);
     }
 }
 
@@ -72,7 +85,7 @@ int heap_pop(int *arr, struct heap *hctx) {
     swap(arr, ROOT, hctx->heap_size);
     // ret = arr[ROOT] = arr[hctx->heap_size];
     hctx->heap_size--;
-    percolateDown(arr, hctx, ROOT);
+    _percolateDown(arr, hctx, ROOT);
     return ret;
 }
 
@@ -96,25 +109,25 @@ void heapsort(int *arr, struct heap *hctx) {
 
 /* heap_pop for any suitable array  */
 void *abstract_heap_pop(void *arr, struct abstract_heap *ahctx) {
-    
+
 }
 
 int abstract_heapify(struct abstract_heap *ahctx) {
-    
+
 }
 
 void abstract_build_heap(struct abstract_heap *ahctx) {
-    
+
 }
 
 void __abstract_percolate_down(struct abstract_heap *ahctx, int i) {
-    
+
 }
 
 int abstract_heap_insert(struct abstract_heap *ahctx, void *elem) {
-    
+
 }
 
 void *abstract_heap_extract(struct abstract_heap *ahctx) {
-    
+
 }

@@ -31,14 +31,14 @@ int main(int argc, char **argv) {
     struct sort_context sctx = {
         .arr = NULL,
         .len = ITERATIONS,
-        .comp = real_ge
+        .comp = real_le
     };
 
     struct heap ctx = {
         NULL,
         ITERATIONS,
         ITERATIONS,
-        real_le         /* We should be* sort in decreasing order
+        real_ge         /* We should be* sort in decreasing order
                            i.e. arr[i] < arr[i + 1] for 
                            all elements in the array */
     };
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
             int tmp;
 
             tmp = rand_in_range(HEAP_MIN_ELEM_VALUE, HEAP_MAX_ELEM_VALUE);
-            if (most < 0 || real_ge(tmp, most)) {
+            if (most < 0 || real_le(tmp, most)) {
                 most = tmp;
             }
             heap_insert(arr, &ctx, tmp);
@@ -116,9 +116,8 @@ int main(int argc, char **argv) {
     }
     puts("\nRemove check: ");
     for (int i = 1; i <= iterations; i++) {
-        //printf("Test case %d/%d: ", i, iterations);
+        printf("Test case %d/%d: ", i, iterations);
         // printf("Extracted %d from the heap\n", heap_extract(arr, &ctx));
-        heap_pop(arr, &ctx);
         if (!is_heap(&ctx, &sctx)) {
             fprintf(stderr, "FAILED!\npop() violated the heap property\n");
             print_heap_err_diagnostics(&ctx, &sctx);
