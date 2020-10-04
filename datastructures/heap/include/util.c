@@ -16,7 +16,7 @@ int rand_in_range(int min, int max) {
     return min + rand() / (RAND_MAX / (max - min + 1) + 1);
 }
 
-void fill_with_random(int *arr, struct heap_context *ctx) {
+void fill_with_random(int *arr, struct heap *ctx) {
     arr[0] = -1;
     for (int i = ROOT; i <= ctx->arr_len; i++) {
         arr[i] = rand_in_range(HEAP_MIN_ELEM_VALUE, HEAP_MAX_ELEM_VALUE);
@@ -49,13 +49,17 @@ int sort_check(void *arr, int arrlen, size_t elem_size, int (*comp)(void *, void
 int is_heap(void *arr, int heap_size, size_t elem_size, int (*comp)(void *, void *)) {
     char *a = (char *) arr;
     for (int i = 1; left(i) <= heap_size || right(i) <= heap_size; i++) {
-        if (left(i) <= heap_size && !comp(&a[i * elem_size], &a[left(i) * elem_size])) {
+        if (left(i) > heap_size || right(i) > heap_size) {
+            return 1;
+        }
+
+        if (!comp(&a[i * elem_size], &a[left(i) * elem_size])) {
             printf("FAILED AT INDEX i = %d, l(i) = %d\n", i, left(i));
             printf("i vs left(i): %d\n", comp(&a[i * elem_size], &a[(left(i) * elem_size)]));
             return 0;
         }
 
-        if (right(i) <= heap_size && !comp(&a[i * elem_size], &a[right(i) * elem_size])) {
+        if (!comp(&a[i * elem_size], &a[right(i) * elem_size])) {
             printf("FAILED AT INDEX i = %d, r(i) = %d\n", i, right(i));
             printf("i vs right(i): %d\n", comp(&a[i * elem_size], &a[right(i) * elem_size]));
             return 0;

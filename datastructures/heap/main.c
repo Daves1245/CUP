@@ -28,7 +28,8 @@ int main(int argc, char **argv) {
     int iterations = ITERATIONS;
     int *arr, tmp;
 
-    struct heap_context ctx = {
+    struct heap ctx = {
+        NULL,
         ITERATIONS,
         ITERATIONS,
         real_le         /* We sort in decreasing order
@@ -45,6 +46,7 @@ int main(int argc, char **argv) {
 
     srand(time(NULL));
     arr = assurealloc(sizeof(int) * (ctx.arr_len + 1));
+    ctx.arr = arr;
     puts("Heapsort check: ");
     for (int i = 1; i <= iterations; i++) {
         printf("Test case %d/%d: ", i, iterations);
@@ -102,8 +104,9 @@ int main(int argc, char **argv) {
     for (int i = 1; i <= iterations; i++) {
         printf("Test case %d/%d: ", i, iterations);
         // printf("Extracted %d from the heap\n", heap_extract(arr, &ctx));
+        heap_pop(arr, &ctx);
         if (!is_heap(arr, ctx.arr_len, sizeof(int), le_wrapper)) {
-            fprintf(stderr, "FAILED!\nheap_extract() violated the heap property\n");
+            fprintf(stderr, "FAILED!\npop() violated the heap property\n");
             for (int i = 1; i <= ctx.heap_size; i++) {
                 printf("%d ", arr[i]);
             }

@@ -18,7 +18,7 @@ int right(int i) {
 }
 
 /* Percolate an element up the heap */
-void percolateUp(int *arr, struct heap_context *hctx, int i) {
+void percolateUp(int *arr, struct heap *hctx, int i) {
     while (i != ROOT && hctx->comp(arr[i], arr[parent(i)])) {
         swap(arr, i, parent(i));
         i = parent(i);
@@ -26,7 +26,7 @@ void percolateUp(int *arr, struct heap_context *hctx, int i) {
 }
 
 /* Percolate an element down the heap */
-void percolateDown(int *arr, struct heap_context *hctx, int i) {
+void percolateDown(int *arr, struct heap *hctx, int i) {
     int swapi = i;
     // printf("i = %d, a[i, l(i), r(i)] = %d, %d, %d\n", i, arr[i], arr[left(i)], arr[right(i)]);
     if (left(i) <= hctx->heap_size && hctx->comp(arr[i], arr[left(i)])) {
@@ -43,7 +43,7 @@ void percolateDown(int *arr, struct heap_context *hctx, int i) {
 }
 
 /* Insert an element into the heap */
-int heap_insert(int *arr, struct heap_context *hctx, int val) {
+int heap_insert(int *arr, struct heap *hctx, int val) {
     if (hctx->heap_size == hctx->arr_len) {
         // TODO set an error state
         printf("HEAP REACHED CAPACITY, CANNOT ADD TO HEAP\n");
@@ -55,7 +55,7 @@ int heap_insert(int *arr, struct heap_context *hctx, int val) {
 }
 
 /* Remove an element from the heap */
-int heap_extract(int *arr, struct heap_context *hctx) {
+int heap_pop(int *arr, struct heap *hctx) {
     int ret = -1;
     if (hctx->heap_size == 0) {
         printf("heap empty, cannot extract\n");
@@ -72,7 +72,7 @@ int heap_extract(int *arr, struct heap_context *hctx) {
 }
 
 /* Build a heap from an array */
-void build_heap(int *arr, struct heap_context *hctx) {
+void build_heap(int *arr, struct heap *hctx) {
     hctx->heap_size = hctx->arr_len;
     for (int i = hctx->heap_size; i >= ROOT; i--) {
         percolateDown(arr, hctx, i);
@@ -80,7 +80,7 @@ void build_heap(int *arr, struct heap_context *hctx) {
 }
 
 /* Apply heap sort to an array */
-void heapsort(int *arr, struct heap_context *hctx) {
+void heapsort(int *arr, struct heap *hctx) {
     build_heap(arr, hctx);
     for (int i = hctx->arr_len; i >= ROOT; i--) {
         swap(arr, i, ROOT);
@@ -89,3 +89,27 @@ void heapsort(int *arr, struct heap_context *hctx) {
     }
 }
 
+/* heap_pop for any suitable array  */
+void *abstract_heap_pop(void *arr, struct abstract_heap *ahctx) {
+    
+}
+
+int abstract_heapify(struct abstract_heap *ahctx) {
+    
+}
+
+void abstract_build_heap(struct abstract_heap *ahctx) {
+    
+}
+
+void __abstract_percolate_down(struct abstract_heap *ahctx, int i) {
+    
+}
+
+int abstract_heap_insert(struct abstract_heap *ahctx, void *elem) {
+    
+}
+
+void *abstract_heap_extract(struct abstract_heap *ahctx) {
+    
+}

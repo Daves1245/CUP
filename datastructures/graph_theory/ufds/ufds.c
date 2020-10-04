@@ -1,5 +1,41 @@
 #include "ufds.h"
 
+struct ufds *UnionFind(int size) {
+    struct ufds *ret = malloc(sizeof(struct ufds));
+    if (!ret) {
+        fprintf(stderr, "[ufds:UnionFind]: error allocating memory\n");
+        return NULL;
+    }
+    ret->rank = malloc(sizeof(int) * size);
+    if (!ret->rank) {
+        free(ret);
+        fprintf(stderr, "[ufds:UnionFind]: error allocating memory\n");
+        return NULL;
+    }
+    ret->parent = malloc(sizeof(int) * size);
+    if (!ret->parent) {
+        free(ret->rank);
+        free(ret);
+        fprintf(stderr, "[ufds:UnionFind]: error allocating memory\n");
+        return NULL;
+    }
+    ret->size = malloc(sizeof(int) * size);
+    if (!ret->size) {
+        free(ret->parent);
+        free(ret->rank);
+        free(ret);
+        fprintf(stderr, "[ufds:UnionFind]: error allocating memory\n");
+        return NULL;
+    }
+
+    ret->len = size;
+    memset(ret->rank, 0, size);
+    memset(ret->size, 0, size);
+    for (int i = 0; i < size; i++) {
+        ret->parent[i] = i;
+    }
+}
+
 // Return the representative item of the set
 int findSet(int i, struct ufds *uf) {
     if (uf->parent[i] != i) {
@@ -19,34 +55,15 @@ void unionSet(int i, int j, struct ufds *uf) {
         int ri = findSet(i), rj = findSet(j);
         if (uf->rank[ri] < uf->rank[rj]) {
             uf->parent[ri] = rj;
+            uf->size[rj]++;
         } else {
             uf->parent[rj] = ri; 
-            if (rank[ri] == rank[rj]) {
-                rank[rj]++;
+            if (uf->rank[ri] == uf->rank[rj]) {
+                uf->rank[rj]++;
+                uf->size[rj]++;
             }
         }
+        uf->num_sets--;
     }
-}
-
-// Find the number of items in a set
-int num_sets(struct ufds *uf) {
-    int count = 0;
-    for (int i = 0; i < SIZE OF PARENTS ARR; i++) {
-        if (p[i] != i) {
-            count++;
-        }
-    }
-    return count;
-}
-
-// Find the size of a set
-int set_size(int i, struct ufds *uf) {
-    int count = 0;
-    for (int j = 0; j < SIZE OF PARENTS ARR; j++) {
-        if (findSet(j) == i) {
-            count++; 
-        }
-    }
-    return count;
 }
 

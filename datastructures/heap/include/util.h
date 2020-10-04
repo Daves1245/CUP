@@ -10,7 +10,7 @@ void swap(int *arr, int a, int b);
 int rand_in_range(int min, int max);
 
 /* fill a an array with random values (within the heap's min and max element values) */
-void fill_with_random(int *arr, struct heap_context *ctx);
+void fill_with_random(int *arr, struct heap *ctx);
 
 /* exit if memory is not properly allocated. Avoids SEGFAULTs*/
 void *assurealloc(size_t len);
