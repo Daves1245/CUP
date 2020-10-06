@@ -12,12 +12,12 @@ typedef struct vector {
 } vector;
 
 /* Creation/Deletion - Memory management */
-vector * vector_new();
+vector *vector_new();
 void vector_delete(vector *);
 
 /* Non-modifiers */ 
 int vector_size(vector *); // grab size of vector 
-void * vector_get(vector *, int); // grab element at index
+void *vector_get(vector *, int); // grab element at index
 int vector_empty(vector *);
 
 /* Internal usage */

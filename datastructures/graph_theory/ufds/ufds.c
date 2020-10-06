@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "ufds.h"
 
 struct ufds *UnionFind(int size) {
@@ -34,12 +37,13 @@ struct ufds *UnionFind(int size) {
     for (int i = 0; i < size; i++) {
         ret->parent[i] = i;
     }
+    return ret;
 }
 
 // Return the representative item of the set
 int findSet(int i, struct ufds *uf) {
     if (uf->parent[i] != i) {
-        return uf->parent[i] = findSet(uf->parent[i]);
+        return uf->parent[i] = findSet(uf->parent[i], uf);
     }
     return i;
 }
@@ -52,7 +56,7 @@ int in_same_set(int i, int j, struct ufds *uf) {
 // Join two disjoint sets together
 void unionSet(int i, int j, struct ufds *uf) {
     if (!in_same_set(i, j, uf)) {
-        int ri = findSet(i), rj = findSet(j);
+        int ri = findSet(i, uf), rj = findSet(j, uf);
         if (uf->rank[ri] < uf->rank[rj]) {
             uf->parent[ri] = rj;
             uf->size[rj]++;

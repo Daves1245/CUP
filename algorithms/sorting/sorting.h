@@ -1,0 +1,7 @@
+#include "src/bubble.h"
+#include "src/counting.h"
+#include "src/insertion.h"
+#include "src/merge.h"
+#include "src/quicksort.h"
+#include "src/radix.h"
+#include "src/selection.h"

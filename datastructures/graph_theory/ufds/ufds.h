@@ -1,5 +1,7 @@
 #ifndef UFDS_H
+#define UFDS_H
 
+#include <stdlib.h>
 /*
  * The Union Find Disjoint Set data structure.
  * Useful applications include Kruskal's algorithm
