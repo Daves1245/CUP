@@ -14,7 +14,7 @@ int kruskals(int E, vector *edgeList) {
             /*
              * Because this operation is amortized constant time,
              * kruskals runs at O(ElgV) and the main runtime cost
-             * is in sorting the edgeList, above.
+             * is in sorting the edgeList.
              */
             unionSet(e->pair.u, e->pair.v, unionfind);
         }

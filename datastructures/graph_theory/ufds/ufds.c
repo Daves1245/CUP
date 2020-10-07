@@ -3,6 +3,7 @@
 
 #include "ufds.h"
 
+// TODO remove dynamic memory allocation from design if possible
 struct ufds *UnionFind(int size) {
     struct ufds *ret = malloc(sizeof(struct ufds));
     if (!ret) {
@@ -40,7 +41,6 @@ struct ufds *UnionFind(int size) {
     return ret;
 }
 
-// Return the representative item of the set
 int findSet(int i, struct ufds *uf) {
     if (uf->parent[i] != i) {
         return uf->parent[i] = findSet(uf->parent[i], uf);
@@ -48,12 +48,10 @@ int findSet(int i, struct ufds *uf) {
     return i;
 }
 
-// Return true if both items are within the same disjoint set
 int in_same_set(int i, int j, struct ufds *uf) {
     return findSet(i, uf) == findSet(j, uf);
 }
 
-// Join two disjoint sets together
 void unionSet(int i, int j, struct ufds *uf) {
     if (!in_same_set(i, j, uf)) {
         int ri = findSet(i, uf), rj = findSet(j, uf);

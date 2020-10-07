@@ -2,6 +2,7 @@
 #define UFDS_H
 
 #include <stdlib.h>
+
 /*
  * The Union Find Disjoint Set data structure.
  * Useful applications include Kruskal's algorithm
@@ -41,10 +42,10 @@ struct ufds {
 };
 
 struct ufds *UnionFind(int size);
-int findset(int i, struct ufds *uf);
-void unionSet(int a, int b, struct ufds *uf);
-int in_same_set(int i, int j, struct ufds *uf);
-int num_sets(struct ufds *uf);
-int set_size(int i, struct ufds *uf);
+int findset(int i, struct ufds *uf);                /* Find the representative of this item */
+void unionSet(int a, int b, struct ufds *uf);       /* Bring two sets together */
+int in_same_set(int i, int j, struct ufds *uf);     /* Return true if two items lie in the same set */
+int num_sets(struct ufds *uf);                      /* Returns uf->num_sets - the number of sets in uf */
+int set_size(int i, struct ufds *uf);               /* Find the number of items in a set */
 
 #endif

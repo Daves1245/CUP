@@ -20,6 +20,7 @@ int main() {
         // since we don't have vector<int, pair<int, int>>, we 
         // make a vector of {int, {int, int}} structs. TODO test performance (later)
         scanf("%d %d %d", &e.pair.u, &e.pair.v, &e.w);
+        vector_add(e, edgeList);
     }
 
     printf("MST cost: %d\n", kruskals(E, edgeList));
