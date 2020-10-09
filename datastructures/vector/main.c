@@ -1,18 +1,18 @@
 #include <stdio.h>
 
 #include "vector.h"
-#include "../../helpfull/io/input.c"
 
 #define MAX_INPUT 10
 
-int main(void)
-{
-  vector *v = vector_new();
+// TODO fix broken dependency on removed files 
 
+int main(void) {
+  vector *v;
   int n;
+
+  v = vector_new();
   scanf("%d", &n);
   getchar();
-
   for (int i = 0; i < n; i++) {
     vector_add(v, input_next());
   }
