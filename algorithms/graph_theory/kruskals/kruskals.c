@@ -2,14 +2,18 @@
 #include "ufds.h"
 #include "vector.h"
 
+int edge_comp(const void *a, const void *b) {
+    return ((struct edge *) a)->w - ((struct edge *) b)->w;
+}
+
 /* Return the cost of a MST of the given graph */
-int kruskals(int E, vector *edgeList) {
+int kruskals(int E, struct edge *elist) {
     struct ufds *unionfind = UnionFind(E);
     int cost = 0;
-    /* sort(edgeList); */
+    qsort(elist, E, sizeof(struct edge), edge_comp);
     for (int i = 0; i < E; i++) {
         struct elem *e = vector_get(edgeList, i);
-        if (!in_same_set(e->pair.u,e->pair.v, unionfind)) {
+        if (!in_same_set(e->pair.u, e->pair.v, unionfind)) {
             cost += e->w;
             /*
              * Because this operation is amortized constant time,

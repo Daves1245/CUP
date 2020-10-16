@@ -3,22 +3,13 @@
 
 #include "vector.h"
 
-/* DUMMY HEADER */
-
-/*
- * These aren't actually
- * essential to kruskal's - 
- * I will remove these later (TODO edgeList for convenience?)
- * For now there's just for convenience
+/* We represent an edge as a 3-tuple (u, v, w)
+ * where u and v are vertices connected by the edge
+ * and w is the weight
  */
-struct vertexPair {
-    int u, v;
-};
-
-struct elem {
-    int w; /* Weight of this edge */
-    struct vertexPair pair; /* The vertices it connects */
-};
+struct edge {
+    int u, v, w;
+}
 
 /* Returns the cost of a MST of the graph depicted by edgeList */
 int kruskals(int num_edges, vector *edgeList);
