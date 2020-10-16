@@ -3,14 +3,14 @@
 A collection of just-for-fun common data structures, algorithms, and other things written in C.
 
 ## What's in this thing?
-### Datastructures:
-#### Linear Data Structures
+### [Datastructures](datastructures):
+#### [Linear Data Structures](datastructures/linear)
 * [Linked List](datastructures/linear/list/)
 * [Vector / Arraylist](datastructures/linear/vector)
 * [Stack](datastructures/linear/stack)
 #### Non-Linear Data Structures
-* [Union Find](datastructures/
-#### Trees
+* [Union Find](datastructures/ufds)
+#### [Trees](datastructures/trees)
 * [Heap](datastructures/heap)
 * [Priority Queue](datastructures/priorityqueue)
 * [Segment Tree](datastructures/segtree)
@@ -18,12 +18,12 @@ A collection of just-for-fun common data structures, algorithms, and other thing
 * [Red-Black Tree (work in progress)](datastructures/trees/rb)
 * [Fenwick Tree (work in progress)](datastructures/trees/fenwick)
 
-### Algorithms:
-#### Searching
+### [Algorithms](algorithms):
+#### [Searching](algorithms/search)
 * [Binary Search](algorithms/search/binary.c)
 * [Linear Search](algorithms/search/linear.c)
 
-#### Sorting
+#### [Sorting](algorithms/sorting)
 * [Bubble Sort](algorithms/sorting/src/bubble.h)
 * [Counting Sort](algorithms/sorting/src/counting.h)
 * [Radix Sort](algorithms/sorting/src/radix.h)
@@ -32,6 +32,6 @@ A collection of just-for-fun common data structures, algorithms, and other thing
 * [Quicksort](algorithms/sorting/src/quicksort.h)
 * [Merge Sort](algorithms/sorting/src/merge.h)
 
-#### Graph Theory
+#### [Graph Theory](algorithms/graph_theory)
 * [Kruskal's](algorithms/graph_theory/kruskals)
 * [Prim's (work in progress)](algorithms/graph_theory/prim)
