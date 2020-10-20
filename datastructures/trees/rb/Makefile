@@ -1,6 +1,7 @@
 CC=gcc
 FLAGS=-Wall -fstack-protector
-SOURCES = rb.c
+INC=-I../include/
+SOURCES = main.c rb.c ../include/traversals.c ../include/rotate.c
 
 CFG=release
 ifneq ($(CFG), release)
@@ -18,7 +19,7 @@ endif
 .PHONY: all clean
 
 all:
-	$(CC) $(FLAGS) $(SOURCES) -o run
+	$(CC) $(FLAGS) $(INC) $(SOURCES) -o run
 
 clean:
 	rm run

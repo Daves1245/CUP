@@ -1,5 +1,5 @@
-#ifndef CUP_NODE_H
-#define CUP_NODE_H
+#ifndef CUP_TREE_NODE_H
+#define CUP_TREE_NODE_H
 
 /*
  * XXX add k-ary trees

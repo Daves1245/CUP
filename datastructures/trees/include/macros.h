@@ -3,8 +3,8 @@
 
 #define __container_of(ptr, type, member) ({ \
         const typeof( ((type *) 0)->member ) *__mptr = (ptr); \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
+        (type *)( (char *)__mptr - offset_of(type,member) );})
 
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *) 0)->MEMBER)
+#define offset_of(TYPE, MEMBER) ((size_t) &((TYPE *) 0)->MEMBER)
 
 #endif

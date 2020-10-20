@@ -1,4 +1,6 @@
-#include "../include/tree.h"
+#include <stdio.h>
+
+#include "tree.h"
 
 #define RB_INIT_ROOT(root) \
     do { \
