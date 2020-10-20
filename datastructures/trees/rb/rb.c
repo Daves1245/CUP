@@ -1,313 +1,205 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
-
 #include "../include/tree.h"
-#include "rb.h"
-#include "rbwrapper.h"
 
-#define MAX_ITERATIONS 50
-#define MAX_TREE_SIZE 50
-#define MAX_ELEM_SIZE 10000
+#define RB_INIT_ROOT(root) \
+    do { \
+        (&(root))->node.parent = (&(root))->node.left = (&(root))->node.right = NULL; \
+        (&(root))->color = BLACK; \
+    } while (0)
 
-// XXX IMPORTANT: remove container_of from rb.h - not necessary
-// TODO: should user handle insert/delete from API perspective with rb_fix?
+#define RB_INIT_NODE(root) \
+    struct rbtree (root) = {{ NULL, NULL, NULL }, RED }
 
-struct results {
-    int errno;
-    int index_failed;
-    struct tree *node_failed;
+enum RB_COLOR {
+    RED, BLACK
 };
 
-struct tree_context {
-    char *name;
-    struct tree **root;
-    int num_elems;
-    void (*tree_ins)(struct tree **, void *elem);
-    void (*tree_del)(struct tree *);
-    void *(*generate_elem)(int val);
-    void (*verify)(struct tree_context *, struct results *);
-    void (*printerrinfo)(int errno);
-    // void *(*find)(void *val);
+struct rbtree {
+    struct tree node;
+    enum RB_COLOR color;
 };
 
-struct benchmark_context {
-    int max_iterations;
-    int max_tree_size;
-    int max_elem_size;
-    int max_deletions;
-    int max_finds;
-};
-
-/* We need to give it a function that returns our container given a struct rbtree field */
-void *container_of(struct rbtree *n) {
-    return __container_of(n, struct myintrbtree, rbt);
+struct rbtree *rb(struct tree *t) {
+    return (struct rbtree *) t;
 }
 
-/* And a comparator function to compare two of our containers */
-int comp(void *a, void *b) {
-    return ((struct myintrbtree *) a)->data - ((struct myintrbtree *) b)->data;
-}
-
-/* We can use this function on the inorder traversal to print out the tree */
-void printdata(struct tree *elem) {
-    struct myintrbtree *ep = (struct myintrbtree *) container_of((struct rbtree *) elem);
-    printf("%d ", ep->data);
-}
-
-int min(int a, int b) {
-    return a < b ? a : b;
-}
-
-int max(int a, int b) {
-    return a > b ? a : b;
-}
-
-void getminmaxpath(struct tree *elem, int *shortest, int *longest, int *cur) {
-    if (!elem->left && !elem->right) {
-        *shortest = min(*shortest, *cur);
-        *longest = max(*longest, *cur);
+struct rbtree *rb_get_root(struct rbtree *node) {
+    struct tree *i = &node->node;
+    while (i->parent && i->parent != i) {
+        i = i->parent; 
     }
-
-    if (elem->left && elem->left != elem) {
-        (*cur)++;
-        getminmaxpath(elem->left, shortest, longest, cur);
-    }
-
-    if (elem->right && elem->right != elem) {
-        (*cur)++;
-        getminmaxpath(elem->right, shortest, longest, cur);
-    }
-    (*cur)--;
+    return (struct rbtree *) i;
 }
 
-int consecutivereds = 0;
+struct rbtree *parent(struct rbtree *e) {
+    if (!e) {
+        return NULL;
+    }
+    return (struct rbtree *) e->node.parent;
+}
 
-void checkredcoloring(struct tree *elem) {
-    if (parent((struct rbtree *) elem) && parent((struct rbtree *) elem)->color == RED) {
-        if (((struct rbtree *) elem)->color == RED) {
-            consecutivereds = 1;
+struct rbtree *uncle(struct rbtree *e) {
+    if (!e || !parent(e) || !parent(parent(e))) {
+        return NULL;
+    }
+    if (parent(e) == (struct rbtree *) parent(parent(e))->node.left) {
+        return (struct rbtree *) e->node.parent->parent->right;
+    }
+    return (struct rbtree *) e->node.parent->parent->left;
+}
+
+/* 
+ * use some magic C polymorphism-like utility from the fact that
+ * the base of rbtree is tree by definition:
+ * struct rbtree {
+ *      struct tree node;
+ *      RB_COLOR color;
+ * };
+ * to get rid of all the ugly rb(stuff)->color
+ * and bring together all the code into one, beautiful, elegant program
+ */
+// TODO rename leaf-not appropriate after successive iterations of while loop
+
+static int rb_fix(struct rbtree **root, struct rbtree *leaf) {
+    while (leaf != *root && parent(leaf) && parent(leaf)->color == RED) {
+        struct rbtree *y;
+        if (parent(leaf) == (struct rbtree *) parent(parent(leaf))->node.left) {
+            y = (struct rbtree *) parent(parent(leaf))->node.right;
+            if (y && y->color == RED) {
+                parent(leaf)->color = y->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                leaf = parent(parent(leaf));
+            } else {
+                if (leaf == (struct rbtree *) parent(leaf)->node.right) {
+                    leaf = parent(leaf);
+                    left_rotate((struct tree *) leaf);
+                }
+                parent(leaf)->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->left;
+                }
+                right_rotate(leaf->node.parent->parent);
+            }
+        } else {
+            y = (struct rbtree *) parent(parent(leaf))->node.left;
+            if (y && y->color == RED) {
+                parent(leaf)->color = y->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                leaf = parent(parent(leaf));
+            } else {
+                if (leaf == (struct rbtree *) parent(leaf)->node.left) {
+                    leaf = parent(leaf);
+                    right_rotate((struct tree *) leaf);
+                }
+                parent(leaf)->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                if (*root == parent(parent(leaf))) {
+                    *root = (struct rbtree *) parent(parent(leaf))->node.right;
+                }
+                left_rotate(leaf->node.parent->parent);
+            }
         }
-    }
-}
 
-int checkblackheight(struct tree *elem, int *standard, int *cur) {
-    if (parent((struct rbtree *) elem) && ((struct rbtree *) elem)->color == BLACK) {
-        (*cur)++;
+        (*root)->color = BLACK;
     }
-    if (!standard && !elem->left && !elem->right) {
-        *standard = *cur;
-    }
-    if (!elem->left && !elem->right && *cur != *standard) {
-        return 1;
-    }
-    if (elem->left && elem->left != elem) {
-        checkblackheight(elem->left, standard, cur);
-    }
-    if (elem->right && elem->right != elem) {
-        checkblackheight(elem->right, standard, cur);
-    }
-
     return 0;
 }
 
-void fill_with_random(struct myintrbtree **root, int tree_size, int max_elem_size) {
-    for (int i = 0; i < tree_size; i++) {
-        struct myintrbtree *elem = malloc(sizeof(struct myintrbtree));
-        struct rbtree *rt = &(*root)->rbt;
-        if (!elem) {
-            fprintf(stderr, "malloc error\n");
-            exit(EXIT_FAILURE);
-        }
+int rb_ins(struct rbtree **root, struct rbtree *leaf, void *(*container_of)(struct rbtree *), int (*comp)(void *, void *)) {
+    (*root)->color = BLACK;
+    leaf->color = RED;
 
-        elem->rbt.node.left = elem->rbt.node.right = NULL;
-        elem->data = rand() % max_elem_size;
-        rb_ins(&rt, &elem->rbt, container_of, comp);
-    }
-}
-
-void rb_verify(struct tree_context *tctx, struct results *res) {
-    res->errno = 0;
-    res->index_failed = -1;
-    res->node_failed = NULL;
-
-    struct tree *iterator = *tctx->root;
-    int prev = ((struct myintrbtree *) *tctx->root)->data;
-    for (int i = 0; (iterator = inorder_successor(iterator)); i++) {
-        if (prev > ((struct myintrbtree *) container_of((struct rbtree *) iterator))->data) {
-            res->errno = NOT_BST;
-            res->index_failed = i;
-            res->node_failed = iterator;
-            return;
-        }
-        prev = ((struct myintrbtree *) container_of((struct rbtree *) iterator))->data;
-    }
-
-    int shortest = tctx->num_elems, longest = 1, cur = 1;
-    getminmaxpath(*tctx->root, &shortest, &longest, &cur);
-    if (shortest * 2 < longest) {
-        res->errno = NOT_BALANCED;
-        res->node_failed = *tctx->root;
-        return;
-    }
-
-
-    if (do_inorder(*tctx->root, checkredcoloring)) {
-        res->errno = TWO_CONSECUTIVE_RED_NODES;
-        res->node_failed = *tctx->root;
-        return;
-    }
-
-    int standard = 1;
-    cur = 1;
-
-    // TODO check every path on every node, this just checks every root-nil path
-    if (checkblackheight(*tctx->root, &standard, &cur)) {
-        res->errno = DIFFERING_BLACKHEIGHTS;
-        res->node_failed = *tctx->root;
-        return;
-    }
-}
-
-void rmnode(struct tree *n) {
-    struct myintrbtree *i = (struct myintrbtree *) n;
-    free(i);
-}
-
-// XXX remove all elements from tree and start over fresh
-void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
-    clock_t start, end;
-    double avgt = 0, totalt = 0;
-
-    do_inorder(*tctx->root, printdata);
-    puts("");
-
-    for (int i = 0; i < bctx->max_iterations; i++) {
-        for (int j = 0; j < bctx->max_tree_size; j++) {
-            start = clock();
-            void *p = tctx->generate_elem(rand() % bctx->max_elem_size);
-            tctx->tree_ins(tctx->root, p);
-            end = clock();
-            double t = (1000 * (double)(end - start) / CLOCKS_PER_SEC);
-            avgt += t / bctx->max_iterations;
-            totalt += t;
-        }
-
-        struct results res;
-        tctx->verify(tctx, &res);
-
-        if (res.errno) {
-            fprintf(stderr, "%s FAILED VERIFICATION: ", tctx->name);
-            tctx->printerrinfo(res.errno);
-            printf("near: %d", ((struct myintrbtree *) res.node_failed)->data);
-            puts("");
-            do_inorder(*tctx->root, printdata);
-            puts("");
-            exit(EXIT_FAILURE);
+    struct tree *i = &(*root)->node;
+    while (i) {
+        if (comp(container_of(leaf), container_of((struct rbtree *) i)) < 0) {
+            if (i->left && i->left != i) {
+                i = i->left;
+            } else {
+                break;
+            }
         } else {
-            printf("Case %d PASSED\n", i);
+            if (i->right && i->right != i) {
+                i = i->right;
+            } else {
+                break;
+            }
+        }
+    }
+
+    leaf->node.parent = i;
+    /* Only ignored on ins(NULL, n) i.e. n defines new root to tree */
+    if (i) { // cast to silent compiler
+        if (comp(container_of(leaf), container_of((struct rbtree *) i)) < 0) {
+            i->left = &leaf->node;
+        } else {
+            i->right = &leaf->node;
+        }
+    }
+
+    return rb_fix(root, leaf);
+}
+
+int rb_del(struct rbtree *node) {
+    return 0; // XXX
+}
+
+void *rb_find(struct rbtree *root, void *val, int (*comp)(void *, void *), void *container_of(struct rbtree *)) {
+    return NULL; // XXX
+}
+
+static int rb_fix_old(struct rbtree **root, struct rbtree *leaf) {
+    while (parent(leaf) && parent(leaf)->color == RED) {
+        struct rbtree *y;
+        if (parent(leaf) == (struct rbtree *) parent(parent(leaf))->node.left) {
+            struct rbtree *grandparent = parent(parent(leaf));
+            if (!grandparent) {
+                printf("ERROR: this should not be reached!\n");
+            }
+            y = (struct rbtree *) grandparent->node.right;
+            if (y && y->color == RED) {
+                parent(leaf)->color = y->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                leaf = parent(parent(leaf));
+            } else {
+                if (leaf == (struct rbtree *) parent(leaf)->node.right) {
+                    leaf = parent(leaf);
+                    if (*root == leaf) {
+                        *root = (struct rbtree *) leaf->node.right;
+                    }
+                    left_rotate((struct tree *) leaf);
+                }
+                parent(leaf)->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                }
+                right_rotate(leaf->node.parent->parent);
+            }
+        } else {
+            y = (struct rbtree *) parent(parent(leaf))->node.left;
+            if (y && y->color == RED) {
+                parent(leaf)->color = BLACK;
+                y->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                leaf = parent(parent(leaf));
+            } else {
+                if (leaf == (struct rbtree *) parent(leaf)->node.left) {
+                    leaf = parent(leaf);
+                    if (*root == leaf) {
+                        *root = (struct rbtree *) leaf->node.right;
+                    }
+                    right_rotate((struct tree *) leaf);
+                }
+                parent(leaf)->color = BLACK;
+                parent(parent(leaf))->color = RED;
+                if (*root == (struct rbtree *) leaf->node.parent->parent) {
+                    *root = (struct rbtree *) leaf->node.parent->parent->right;
+                }
+                left_rotate(leaf->node.parent->parent);
+            }
         }
 
-        do_inorder(*tctx->root, rmnode);
+        (*root)->color = BLACK;
     }
-    printf("%s ins\nTotal time = %.2fms, Avg time = %.2fms\n", tctx->name, totalt, avgt);
-}
-
-void *rb_genelem(int val) {
-    struct myintrbtree *ret = malloc(sizeof(struct myintrbtree));
-    if (!ret) {
-        fprintf(stderr, "malloc error!\n");
-        return NULL;
-    }
-    ret->data = val;
-    return ret;
-}
-
-int getdata(struct tree *t) {
-    return ((struct myintrbtree *) t)->data;
-}
-
-/*void interactive(void) {
-  char buff[100];
-  int state = 0, first = 1;
-  struct myintrbtree *root = malloc(sizeof(struct myintrbtree));
-  struct rbtree *rbroot = &root->rbt;
-  do {
-  scanf("%s", buff);
-  switch (*buff) {
-  case 'i':
-  state = 1;
-  break;
-  case 'p':
-  state = 0;
-  printf("> ");
-  do_inorder(rbroot, printdata);
-  puts("");
-  break;
-  default:
-  if (!state) {
-  printf("assuming insert\n");
-  state = 1;
-  } 
-  if (first) {
-  first = 0;
-  root->data = atoi(buff);
-  break;
-  }
-  struct myintrbtree *tmp = malloc(sizeof(struct myintrbtree));
-  if (!tmp) {
-  fprintf(stderr, "malloc returned null. exiting\n");
-  exit(EXIT_FAILURE);
-  }
-  tmp->data = atoi(buff);
-  rb_ins_wrapper(rbroot, (struct rbtree *) tmp);
-  }
-  } while (strcmp(buff, "exit") != 0);
-
-  }*/
-
-int main(int argc, char **argv) {
-    srand(time(NULL));
-
-    struct benchmark_context bctx = { MAX_ITERATIONS, MAX_TREE_SIZE, MAX_ELEM_SIZE };
-
-    struct myintrbtree *rb = malloc(sizeof(struct myintrbtree));
-    struct tree *rbroot;
-
-    if (!rb) {
-        fprintf(stderr, "malloc returned null\n");
-        exit(EXIT_FAILURE);
-    }
-
-    rbroot = &rb->rbt.node;
-    rbroot->parent = rbroot->left = rbroot->right = NULL;
-
-    struct tree_context trees[1] = {{
-        "Red Black Tree",
-            &rbroot,
-            MAX_TREE_SIZE,
-            rb_ins_wrapper,
-            rb_del_wrapper,
-            rb_genelem,
-            rb_verify,
-            rb_printerrinfo
-    }};
-
-    if (argc > 1) {
-        bctx.max_iterations = atoi(argv[1]);
-    }
-
-    if (argc > 2) {
-        bctx.max_tree_size = atoi(argv[2]);
-    }
-
-    if (argc > 3) {
-        bctx.max_elem_size = atoi(argv[3]);
-    }
-
-    benchmark(&bctx, &trees[0]);
-
     return 0;
 }
