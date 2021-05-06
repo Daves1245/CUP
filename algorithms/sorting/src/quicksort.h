@@ -21,5 +21,5 @@ static void _quick_sort(int *arr, int l, int h){
 }
 
 void quick_sort(int *arr, size_t len) {
-    _quick_sort(arr, 0, len);
+    _quick_sort(arr, 0, len - 1);
 }

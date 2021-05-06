@@ -14,9 +14,9 @@
 #include "src/counting.h"
 #include "src/radix.h"
 
-#define MAX_ARRAY_SIZE 100
+#define MAX_ARRAY_SIZE 5000
 #define MAX_ELEMENT_SIZE 1000
-#define ITERATIONS 10000
+#define ITERATIONS 100
 
 /* -------------------------------- Benchmarking boilerplate -------------------------------- */
 
@@ -30,6 +30,7 @@ struct benchmark_context {
     int max_array_size;        /* Maximum size of the array */
     int verbose;               /* Print out info while performing benchmark */
     int index_failed;          /* If positive, index of first unsorted element */
+    int *left, *right;     /* Optional external swap arrays for mergesort */
 } ctx;
 
 /* Context for sorting function information */
@@ -41,20 +42,25 @@ struct sort_context {
 
 /* Most sorting functions just need the array and the size of the array */
 void default_wrapper(void (*sort_func)(void), struct benchmark_context *ctx) {
-    void (*sort)(int*, int) = (void (*)(int*, int)) sort_func;
+    void (*sort)(int *, int) = (void (*)(int *, int)) sort_func;
     sort(ctx->arr, ctx->max_array_size);
 }
 
 /* Counting sort needs to know the maximum value of an element */
 void counting_sort_wrapper(void *(sort_func)(void), struct benchmark_context *ctx) {
-    void (*sort)(int*, int, int*, int*, int) = (void (*)(int*, int, int*, int*, int)) sort_func;
+    void (*sort)(int *, int, int *, int *, int) = (void (*)(int *, int, int *, int*, int)) sort_func;
     sort(ctx->arr, ctx->max_array_size, ctx->arrcpy, ctx->arrcount, ctx->max_element_size);
 }
 
 /* Radix sort also needs extra information */
 void radix_sort_wrapper(void *(sort_func)(void), struct benchmark_context *ctx) {
-    void (*sort)(int*, int*, int, int, int) = (void (*)(int*, int*, int, int, int))(sort_func);
+    void (*sort)(int *, int *, int, int, int) = (void (*)(int *, int *, int, int, int))(sort_func);
     sort(ctx->arr, ctx->arrcpy, ctx->max_array_size, 10, ctx->max_element_size);
+}
+
+void merge_sort_wrapper(void *(sort_func)(void), struct benchmark_context *ctx) {
+    void (*sort)(int *, int, int *, int *) = (void (*)(int *, int, int *, int *)) (sort_func);
+    sort(ctx->arr, ctx->max_array_size, ctx->left, ctx->right);
 }
 
 /* -------------------------------- Benchmarking boilerplate -------------------------------- */
@@ -102,6 +108,11 @@ double benchmark(struct sort_context *s_ctx, struct benchmark_context *bm_ctx) {
     for (int i = 1; i <= bm_ctx->iterations; i++) {
         fill_random(bm_ctx->arr, bm_ctx->max_array_size);
         //clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+        bm_ctx->left = malloc(sizeof(int) * bm_ctx->max_array_size);
+        bm_ctx->right = malloc(sizeof(int) * bm_ctx->max_array_size);
+        if (!bm_ctx->left || !bm_ctx->right) {
+            fprintf(stderr, "Could not allocate temporary memory\n");
+        }
         start = clock();
         s_ctx->wrapper(s_ctx->sort_func, bm_ctx);
         end = clock();
@@ -120,7 +131,7 @@ double benchmark(struct sort_context *s_ctx, struct benchmark_context *bm_ctx) {
             printf("\tCase " YELLOW "#%d:" ANSI_RESET " [" GREEN "PASSED" ANSI_RESET "]\r", i);
         } else {
             // XXX set "if (sorted)", duh it's out of place
-           bm_ctx->index_failed = i;
+            bm_ctx->index_failed = i;
             break;
         }
     }
@@ -154,7 +165,7 @@ int main(int argc, char **argv) {
         {"Insertion Sort", insertion_sort, default_wrapper},
         {"Selection Sort", selection_sort, default_wrapper},
         {"Bubble Sort", bubble_sort, default_wrapper},
-        {"Merge Sort", merge_sort, default_wrapper},
+        {"Merge Sort", merge_sort, merge_sort_wrapper},
         {"Quick Sort", quick_sort, default_wrapper},
         {"Counting Sort", counting_sort, counting_sort_wrapper},
         {"Radix Sort", radix_sort, radix_sort_wrapper}

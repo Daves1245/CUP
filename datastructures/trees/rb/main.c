@@ -217,6 +217,7 @@ void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
 
 void *rb_genelem(int val) {
     struct myintrbtree *ret = malloc(sizeof(struct myintrbtree));
+    memset(ret, 0, sizeof(*ret));
     if (!ret) {
         fprintf(stderr, "malloc error!\n");
         return NULL;
