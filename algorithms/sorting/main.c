@@ -189,5 +189,7 @@ int main(int argc, char **argv) {
             printf(GREEN "PASSED ALL TEST CASES" ANSI_RESET " (avg time = %.3fms)\n", avgt);
         }
     }
+    free(ctx.left);
+    free(ctx.right);
     return 0;
 }
