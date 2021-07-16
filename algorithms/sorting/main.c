@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 #include <math.h>
 
 #include "include/colors.h"
@@ -17,6 +18,8 @@
 #define MAX_ARRAY_SIZE 5000
 #define MAX_ELEMENT_SIZE 1000
 #define ITERATIONS 100
+
+#define MS_PER_SEC 1000
 
 /* -------------------------------- Benchmarking boilerplate -------------------------------- */
 
@@ -100,10 +103,16 @@ int sorted(int *arr, size_t len) {
     return 1;
 }
 
+struct time_results {
+    double avg;
+    double best;
+    double worst;
+};
+
 /* Perform a benchmark on a sorting function */
-double benchmark(struct sort_context *s_ctx, struct benchmark_context *bm_ctx) {
+void benchmark(struct sort_context *s_ctx, struct benchmark_context *bm_ctx, struct time_results *t) {
     clock_t start, end;
-    double avgt = 0;
+    double avgt = 0, best_time = LONG_MAX, worst_time = 0, cur;
     bm_ctx->index_failed = -1;
     for (int i = 1; i <= bm_ctx->iterations; i++) {
         fill_random(bm_ctx->arr, bm_ctx->max_array_size);
@@ -118,7 +127,14 @@ double benchmark(struct sort_context *s_ctx, struct benchmark_context *bm_ctx) {
         end = clock();
         //clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
         /* We're measuring ms */
-        avgt += (1000 * (double)(end - start) / CLOCKS_PER_SEC) / bm_ctx->iterations;
+        cur = (MS_PER_SEC * (double)(end - start) / CLOCKS_PER_SEC);
+        if (cur < best_time) {
+            best_time = cur;
+        }
+        if (cur > worst_time) {
+            worst_time = cur;
+        }
+        avgt += cur / bm_ctx->iterations;
         if (avgt < 0) {
             for (int i = 0; i < 3; i++) {
                 printf("avgt: %f\n", avgt);
@@ -130,12 +146,14 @@ double benchmark(struct sort_context *s_ctx, struct benchmark_context *bm_ctx) {
         if (sorted(bm_ctx->arr, bm_ctx->max_array_size)) {
             printf("\tCase " YELLOW "#%d:" ANSI_RESET " [" GREEN "PASSED" ANSI_RESET "]\r", i);
         } else {
-            // XXX set "if (sorted)", duh it's out of place
+            // XXX set "if (sorted)", it's out of place
             bm_ctx->index_failed = i;
             break;
         }
     }
-    return avgt;
+    t->avg = avgt;
+    t->best = best_time;
+    t->worst = worst_time;
 }
 
 int main(int argc, char **argv) {
@@ -174,7 +192,8 @@ int main(int argc, char **argv) {
     printf("Sorting %d arrays with %d randomly generated numbers...\n", ctx.iterations, ctx.max_array_size);
     for (int i = 0; i < num_sorts; i++) {
         printf(CYAN "%s:\n" ANSI_RESET, sortfuncs[i].name);
-        double avgt = benchmark(&sortfuncs[i], &ctx);
+        struct time_results times;
+        benchmark(&sortfuncs[i], &ctx, &times);
         if (ctx.index_failed > 0) {
             fprintf(stderr, "Case " YELLOW "#%d:" ANSI_RESET "[" RED "FAILED" ANSI_RESET "]\n", i);
             fprintf(stderr, "Contents of arr: ");
@@ -186,7 +205,7 @@ int main(int argc, char **argv) {
                 }
             }
         } else {
-            printf(GREEN "PASSED ALL TEST CASES" ANSI_RESET " (avg time = %.3fms)\n", avgt);
+            printf(GREEN "PASSED ALL TEST CASES" ANSI_RESET " (best = %.3fms, avg = %.3fms, worst = %.3fms)\n", times.best, times.avg, times.worst);
         }
     }
     free(ctx.left);
