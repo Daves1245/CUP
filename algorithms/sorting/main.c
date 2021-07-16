@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
                 }
             }
         } else {
-            printf(GREEN "PASSED ALL TEST CASES" ANSI_RESET " (best = %.3fms, avg = %.3fms, worst = %.3fms)\n", times.best, times.avg, times.worst);
+            printf(GREEN "PASSED ALL TEST CASES" ANSI_RESET " (best = " GREEN "%.3fms" ANSI_RESET ", avg = " YELLOW "%.3fms" ANSI_RESET", worst = " RED "%.3f" ANSI_RESET "ms)\n", times.best, times.avg, times.worst);
         }
     }
     free(ctx.left);
