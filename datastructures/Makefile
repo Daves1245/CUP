@@ -5,7 +5,7 @@ FLAGS=-Wall -Itrees/include
 all: bench_all
 
 bench_all: bench_all.c trees/include/bench_common.h
-	$(CC) $(FLAGS) bench_all.c -o bench_all
+	$(CC) $(FLAGS) bench_all.c -o bench_all -lm
 
 # Build individual benchmarks
 build-all:
@@ -25,6 +25,10 @@ run: bench_all build-all
 run-compact: bench_all build-all
 	./bench_all --compact
 
+# Run with super-compact mode
+run-super-compact: bench_all build-all
+	./bench_all --super-compact
+
 # Clean everything
 clean:
 	rm -f bench_all
@@ -37,17 +41,20 @@ clean:
 # Help target
 help:
 	@echo "Available targets:"
-	@echo "  all          Build the unified benchmark runner"
-	@echo "  build-all    Build all individual benchmarks"
-	@echo "  run          Build and run all benchmarks"
-	@echo "  run-compact  Build and run all benchmarks in compact mode"
-	@echo "  clean        Clean all build artifacts"
-	@echo "  help         Show this help message"
+	@echo "  all               Build the unified benchmark runner"
+	@echo "  build-all         Build all individual benchmarks"
+	@echo "  run               Build and run all benchmarks"
+	@echo "  run-compact       Build and run all benchmarks in compact mode"
+	@echo "  run-super-compact Build and run all benchmarks in ultra-compact mode"
+	@echo "  clean             Clean all build artifacts"
+	@echo "  help              Show this help message"
 	@echo ""
 	@echo "Usage examples:"
-	@echo "  make run                    # Run all benchmarks"
-	@echo "  make run-compact            # Run all in compact mode"
-	@echo "  ./bench_all heap list       # Run only heap and list"
-	@echo "  ./bench_all --compact bst   # Run BST in compact mode"
+	@echo "  make run                        # Run all benchmarks"
+	@echo "  make run-compact                # Run all in compact mode"
+	@echo "  make run-super-compact          # Run all in ultra-compact mode"
+	@echo "  ./bench_all heap list           # Run only heap and list"
+	@echo "  ./bench_all --compact bst       # Run BST in compact mode"
+	@echo "  ./bench_all --super-compact     # Run all in ultra-compact mode"
 
-.PHONY: all build-all run run-compact clean help
+.PHONY: all build-all run run-compact run-super-compact clean help

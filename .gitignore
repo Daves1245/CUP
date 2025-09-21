@@ -1,1 +1,10 @@
+run
+demo_run
+bench_all
+
+*.o
+*.obj
+
 *.swp
+*.swo
+*.swn
