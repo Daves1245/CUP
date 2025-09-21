@@ -5,6 +5,7 @@
 #include <time.h>
 
 #include "../include/tree.h"
+#include "../include/bench_common.h"
 #include "rb.h"
 #include "rbwrapper.h"
 
@@ -133,8 +134,20 @@ void rb_verify(struct tree_context *tctx, struct results *res) {
     res->index_failed = -1;
     res->node_failed = NULL;
 
+    /* Check if tree is empty */
+    if (!*tctx->root) {
+        return; /* Empty tree is valid */
+    }
+
+    /* Check if root is black */
+    if (((struct rbtree *) *tctx->root)->color != BLACK) {
+        res->errno = ROOT_NOT_BLACK;
+        res->node_failed = *tctx->root;
+        return;
+    }
+
     struct tree *iterator = *tctx->root;
-    int prev = ((struct myintrbtree *) *tctx->root)->data;
+    int prev = ((struct myintrbtree *) container_of((struct rbtree *) *tctx->root))->data;
     for (int i = 0; (iterator = inorder_successor(iterator)); i++) {
         if (prev > ((struct myintrbtree *) container_of((struct rbtree *) iterator))->data) {
             res->errno = NOT_BST;
@@ -154,7 +167,9 @@ void rb_verify(struct tree_context *tctx, struct results *res) {
     }
 
 
-    if (do_inorder(*tctx->root, checkredcoloring)) {
+    consecutivereds = 0;
+    do_inorder(*tctx->root, checkredcoloring);
+    if (consecutivereds) {
         res->errno = TWO_CONSECUTIVE_RED_NODES;
         res->node_failed = *tctx->root;
         return;
@@ -178,41 +193,49 @@ void rmnode(struct tree *n) {
 
 // XXX remove all elements from tree and start over fresh
 void benchmark(struct benchmark_context *bctx, struct tree_context *tctx) {
-    clock_t start, end;
-    double avgt = 0, totalt = 0;
+    struct performance_stats insert_stats;
+    bench_init_stats(&insert_stats, "Insert");
 
-    do_inorder(*tctx->root, printdata);
-    puts("");
+    bench_print_section("Insert check");
 
     for (int i = 0; i < bctx->max_iterations; i++) {
         for (int j = 0; j < bctx->max_tree_size; j++) {
-            start = clock();
+            BENCH_START_TIMER(insert_timer);
             void *p = tctx->generate_elem(rand() % bctx->max_elem_size);
             tctx->tree_ins(tctx->root, p);
-            end = clock();
-            double t = (1000 * (double)(end - start) / CLOCKS_PER_SEC);
-            avgt += t / bctx->max_iterations;
-            totalt += t;
+            BENCH_END_TIMER(insert_timer, &insert_stats);
         }
 
         struct results res;
         tctx->verify(tctx, &res);
 
         if (res.errno) {
-            fprintf(stderr, "%s FAILED VERIFICATION: ", tctx->name);
-            tctx->printerrinfo(res.errno);
-            printf("near: %d", ((struct myintrbtree *) res.node_failed)->data);
-            puts("");
-            do_inorder(*tctx->root, printdata);
-            puts("");
+            bench_print_test_case(i + 1, bctx->max_iterations, "Insert", TEST_FAILED);
+            if (!bench_compact_mode) {
+                printf("\n%s VERIFICATION FAILED: ", tctx->name);
+                tctx->printerrinfo(res.errno);
+                if (res.node_failed) {
+                    printf("near: %d\n", ((struct myintrbtree *) res.node_failed)->data);
+                }
+                do_inorder(*tctx->root, printdata);
+                puts("");
+            }
             exit(EXIT_FAILURE);
         } else {
-            printf("Case %d PASSED\n", i);
+            bench_print_test_case(i + 1, bctx->max_iterations, "Insert", TEST_PASSED);
         }
 
-        do_inorder(*tctx->root, rmnode);
+        if (*tctx->root) {
+            do_inorder(*tctx->root, rmnode);
+            *tctx->root = NULL;
+        }
     }
-    printf("%s ins\nTotal time = %.2fms, Avg time = %.2fms\n", tctx->name, totalt, avgt);
+    
+    bench_finalize_stats(&insert_stats);
+    bench_print_stats(&insert_stats);
+    
+    bench_print_summary_header();
+    bench_print_summary_line(&insert_stats);
 }
 
 void *rb_genelem(int val) {
@@ -272,23 +295,21 @@ int getdata(struct tree *t) {
 int main(int argc, char **argv) {
     srand(time(NULL));
 
-    struct benchmark_context bctx = { MAX_ITERATIONS, MAX_TREE_SIZE, MAX_ELEM_SIZE };
+    /* Initialize benchmark configuration */
+    struct benchmark_config config;
+    bench_init_config(&config, MAX_ITERATIONS, MAX_TREE_SIZE, MAX_ELEM_SIZE);
+    bench_parse_args(&config, argc, argv);
+    bench_init_terminal(&config);
 
-    struct myintrbtree *rb = malloc(sizeof(struct myintrbtree));
-    struct tree *rbroot;
+    struct benchmark_context bctx = { config.max_iterations, config.max_size, config.max_element_value };
 
-    if (!rb) {
-        fprintf(stderr, "malloc returned null\n");
-        exit(EXIT_FAILURE);
-    }
-
-    rbroot = &rb->rbt.node;
-    rbroot->parent = rbroot->left = rbroot->right = NULL;
+    /* Initialize root as NULL for empty tree */
+    struct tree *rbroot = NULL;
 
     struct tree_context trees[1] = {{
         "Red Black Tree",
             &rbroot,
-            MAX_TREE_SIZE,
+            config.max_size,
             rb_ins_wrapper,
             rb_del_wrapper,
             rb_genelem,
@@ -296,18 +317,7 @@ int main(int argc, char **argv) {
             rb_printerrinfo
     }};
 
-    if (argc > 1) {
-        bctx.max_iterations = atoi(argv[1]);
-    }
-
-    if (argc > 2) {
-        bctx.max_tree_size = atoi(argv[2]);
-    }
-
-    if (argc > 3) {
-        bctx.max_elem_size = atoi(argv[3]);
-    }
-
+    bench_print_header("RED-BLACK TREE", &config);
     benchmark(&bctx, &trees[0]);
 
     return 0;

@@ -1,4 +1,5 @@
 all:
-	gcc -Wall main.c list.* -o run 
+	gcc -Wall -I../../trees/include bench_main.c -o run
+
 clean:
-	rm run 
+	rm -f run

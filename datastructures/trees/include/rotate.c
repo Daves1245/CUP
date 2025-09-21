@@ -54,7 +54,7 @@ int right_rotate(struct tree *n) {
     m->parent = n->parent;
     if (n->parent) {
         if (n == n->parent->left) {
-            n->parent->left = m->left;
+            n->parent->left = m;
         } else {
             n->parent->right = m;
         }

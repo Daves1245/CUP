@@ -33,7 +33,7 @@ int do_inorder(struct tree *root, void (*func)(struct tree *)) {
         do_inorder(root->left, func);
     }
     func(root);
-    if (root->right && root->left != root) {
+    if (root->right && root->right != root) {
         do_inorder(root->right, func);
     }
 
